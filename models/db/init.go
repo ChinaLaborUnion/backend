@@ -52,6 +52,7 @@ Conn:
 		&PartyClass{},
 		&SignUp{},
 		&NewsInfo{},&NewsLabel{},
+		&GoodsInfo{},&OrderInfo{},
 	)
 }
 
