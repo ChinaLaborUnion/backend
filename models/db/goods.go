@@ -17,6 +17,8 @@ type GoodsInfo struct {
 
 	IsOn bool `json:"is_on" gorm:"default:true"`
 
+	Inventory int `json:"inventory" gorm:"not null"`
+
 	CreateTime int64 `json:"create_time"`
 
 	UpdateTime int64 `json:"update_time"`

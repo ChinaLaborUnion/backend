@@ -20,6 +20,7 @@ func CreateGoods(ctx iris.Context,auth authbase.AuthAuthorization){
 	name := params.Str("name","商品名")
 	price := params.Int("price","价格")
 	pictures := params.List("pictures","图片列表")
+	inventory := params.Int("inventory","库存")
 
 	var p string
 	if data,err := json.Marshal(pictures);err != nil{
@@ -32,6 +33,7 @@ func CreateGoods(ctx iris.Context,auth authbase.AuthAuthorization){
 		Name:       name,
 		Price:      price,
 		Pictures:   p,
+		Inventory:inventory,
 	}
 	if params.Has("brief"){
 		goods.Brief = params.Str("brief","简介")
@@ -62,6 +64,7 @@ func PutGoods(ctx iris.Context,auth authbase.AuthAuthorization,gid int){
 	goods.Price = params.Int("price","价格")
 	goods.Brief = params.Str("brief","简介")
 	goods.IsOn = params.Bool("is_on","是否上线")
+	goods.Inventory = params.Int("inventory","库存")
 
 	if params.Has("pictures"){
 		pictures := params.List("pictures","图片列表")
@@ -117,7 +120,7 @@ func ListGoods(ctx iris.Context,auth authbase.AuthAuthorization){
 	})
 }
 
-var goodsField = []string{"ID","Cover","Name","Brief","Price","People","IsOn","CreateTime","UpdateTime"}
+var goodsField = []string{"ID","Cover","Name","Brief","Price","People","IsOn","Inventory","CreateTime","UpdateTime"}
 
 func MgetGoods(ctx iris.Context,auth authbase.AuthAuthorization){
 	params := paramsUtils.NewParamsParser(paramsUtils.RequestJsonInterface(ctx))
