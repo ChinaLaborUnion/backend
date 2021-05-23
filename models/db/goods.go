@@ -15,6 +15,8 @@ type GoodsInfo struct {
 
 	Pictures string  `json:"pictures"`
 
+	IsOn bool `json:"is_on" gorm:"default:true"`
+
 	CreateTime int64 `json:"create_time"`
 
 	UpdateTime int64 `json:"update_time"`
