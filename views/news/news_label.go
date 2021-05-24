@@ -19,7 +19,8 @@ func newsLabelIsExistById(lid int){
 
 func newsLabelIsExistByName(name string){
 	var newsLable db.NewsLabel
-	if err:= db.Driver.Where("name = ?",name).First(&newsLable).Error;err != nil{
+	//// 获取所有记录    db.Find(&x)
+	if err:= db.Driver.Where("name = ?",name).Find(&newsLable).Error;err != nil{
 		panic(newsException.NewsLableNotExist())
 	}
 }
