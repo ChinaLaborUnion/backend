@@ -54,6 +54,7 @@ Conn:
 		&NewsInfo{},&NewsLabel{},
 		&GoodsInfo{},&OrderInfo{},
 		&HomeWork{},
+		&TransactionInfo{},&WxPayOrder{},&HomeWork{},
 	)
 }
 
