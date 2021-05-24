@@ -103,7 +103,7 @@ func CallbackReceiver(ctx iris.Context) {
 
 		var order db.OrderInfo
 		if err := db.Driver.Where("number = ?", resource.OutTradeNo).First(&order).Error;err==nil{
-			logUtils.Println(orderException.OrderNotExist())
+			logUtils.Println(orderException.OrderNotExsit())
 			return
 		}
 

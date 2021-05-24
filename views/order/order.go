@@ -20,7 +20,7 @@ func CreateOrder(ctx iris.Context,auth authbase.AuthAuthorization){
 	goodsID := params.Int("goods_id","商品id")
 	var goods db.GoodsInfo
 	if err := db.Driver.GetOne("goods_info",goodsID,&goods);err != nil{
-		panic(goodsException.GoodsNotExist())
+		panic(goodsException.GoodsNotExsit())
 	}
 	total := params.Int("total","总数")
 	if goods.Inventory < total{
@@ -82,7 +82,7 @@ func CancelOrder(ctx iris.Context,auth authbase.AuthAuthorization,oid int){
 	}
 	var goods db.GoodsInfo
 	if err := db.Driver.GetOne("goods_info",order.GoodsID,&goods);err != nil{
-		panic(goodsException.GoodsNotExist())
+		panic(goodsException.GoodsNotExsit())
 	}
 	goods.Inventory += order.Total
 	if err := tx.Save(&goods).Error;err != nil{

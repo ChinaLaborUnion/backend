@@ -1,15 +1,16 @@
 package main
 
 import (
-	_ "github.com/go-sql-driver/mysql"
-	"github.com/kataras/iris"
-	"github.com/kataras/iris/hero"
 	"grpc-demo/core/cache"
 	viewbase "grpc-demo/core/view"
 	"grpc-demo/models/db"
 	"grpc-demo/utils"
 	"grpc-demo/utils/middlewares"
 	"grpc-demo/views"
+
+	_ "github.com/go-sql-driver/mysql"
+	"github.com/kataras/iris"
+	"github.com/kataras/iris/hero"
 )
 
 func initRouter(app *iris.Application) {
@@ -22,6 +23,7 @@ func initRouter(app *iris.Application) {
 	views.RegisterGoodsRouters(app)
 	views.RegisterOrderRouters(app)
 	views.HomeWorkRoute(app)
+	views.RegisterTransactionRouters(app)
 }
 
 
