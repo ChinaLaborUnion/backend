@@ -19,6 +19,9 @@ func initRouter(app *iris.Application) {
 	views.CoursePictureRouters(app)
 	views.RegisterNewsRouters(app)
 	views.RegisterNewsLabelRouters(app)
+	views.RegisterGoodsRouters(app)
+	views.RegisterOrderRouters(app)
+	views.HomeWorkRoute(app)
 }
 
 

@@ -18,7 +18,8 @@ func CreateFail() models.RestfulAPIResult {
 	}
 }
 
-func OrderNotExist() models.RestfulAPIResult {
+
+func OrderNotExsit() models.RestfulAPIResult {
 	return models.RestfulAPIResult{
 		Status:  false,
 		ErrCode: 5400,
@@ -40,6 +41,7 @@ func CancelFail() models.RestfulAPIResult {
 		ErrCode: 5400,
 		Message: "取消失败",
 	}
+
 }
 
 func SaveFail() models.RestfulAPIResult {

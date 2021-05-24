@@ -18,10 +18,18 @@ func PicturesUnmarshalFail() models.RestfulAPIResult {
 	}
 }
 
+<<<<<<< HEAD
 func GoodsNotExist() models.RestfulAPIResult {
+=======
+func GoodsNotExsit() models.RestfulAPIResult {
+>>>>>>> origin/main
 	return models.RestfulAPIResult{
 		Status:  false,
 		ErrCode: 5400,
 		Message: "商品不存在",
 	}
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/main

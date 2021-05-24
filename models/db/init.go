@@ -53,6 +53,7 @@ Conn:
 		&SignUp{},
 		&NewsInfo{},&NewsLabel{},
 		&GoodsInfo{},&OrderInfo{},
+		&HomeWork{},
 	)
 }
 
