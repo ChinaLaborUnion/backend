@@ -33,10 +33,14 @@ func CreateOrder(ctx iris.Context,auth authbase.AuthAuthorization){
 		AccountID: auth.AccountModel().Id,
 		GoodsID: goodsID,
 	}
-
-	order.Number = strconv.FormatInt(order.CreateTime, 10) + "-" + hash.GetRandomString(8)
 	tx := db.Driver.Begin()
 	if err := tx.Create(&order).Error;err != nil{
+		tx.Rollback()
+		panic(orderException.CreateFail())
+	}
+
+	order.Number = strconv.FormatInt(order.CreateTime, 10) + "-" + hash.GetRandomString(8)
+	if err := tx.Save(&order).Error;err != nil{
 		tx.Rollback()
 		panic(orderException.CreateFail())
 	}
