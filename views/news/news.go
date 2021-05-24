@@ -2,6 +2,7 @@ package news
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/kataras/iris"
 	authbase "grpc-demo/core/auth"
 	homeworkException "grpc-demo/exceptions/homework"
@@ -9,13 +10,6 @@ import (
 	"grpc-demo/models/db"
 	paramsUtils "grpc-demo/utils/params"
 )
-
-func newsIsExist(nid int){
-	var news db.NewsInfo
-	if err:= db.Driver.GetOne("news_info",nid,&news);err != nil{
-		panic(newsException.NewsNotExist())
-	}
-}
 
 //curd 均需考虑是否存在级联操作,有就事务
 //Create -- post  ctx就是类似于前端发送过来的请求体   auth 登陆态通过登陆态可以知道是谁登陆了这个app，学生，老师，管理员    原子操作：设计多表的curd需要用事务保证原子性
@@ -32,6 +26,7 @@ func CreateNews(ctx iris.Context,auth authbase.AuthAuthorization)  {
 	isPublish := params.Bool("is_publish","是否发布")
 	//更新时间,创建时间 不写，因为会自动更新
 	news := db.NewsInfo{
+		AccountId: auth.AccountModel().Id,
 		Title: title,
 		Content: content,
 		IsPublish: isPublish,
@@ -40,8 +35,8 @@ func CreateNews(ctx iris.Context,auth authbase.AuthAuthorization)  {
 	if params.Has("introduction"){
 		news.Introduction = params.Str("introduction","简介")
 	}
-	if params.Has("picture"){
-		picture := params.List("picture","封面图片")
+	if params.Has("pictures"){
+		picture := params.List("pictures","封面图片")
 		var p string
 		//目前理解是将一个东西x 序列化成为了 byte[],error，下面的dataPicture,_ 对应的是byte[],error;然后byte[] 需要转化为string,然后存进DB
 		if dataPicture,err := json.Marshal(picture);err != nil{
@@ -49,7 +44,8 @@ func CreateNews(ctx iris.Context,auth authbase.AuthAuthorization)  {
 		}else{
 			p = string(dataPicture)
 		}
-		news.Picture = p
+		news.Pictures = p
+		fmt.Println(news.Pictures)
 	}
 	db.Driver.Create(&news)
 
@@ -96,15 +92,15 @@ func PutNews(ctx iris.Context,auth authbase.AuthAuthorization,nid int){
 	if params.Has("is_publish"){
 		news.IsPublish = params.Bool("is_publish","是否发布")
 	}
-	if params.Has("picture"){
-		picture := params.List("picture","封面图片")
+	if params.Has("pictures"){
+		picture := params.List("pictures","封面图片")
 		var p string
 		if dataPicture,err := json.Marshal(picture);err != nil{
 			panic(homeworkException.PicturesMarshalFail())
 		}else{
 			p = string(dataPicture)
 		}
-		news.Picture = p
+		news.Pictures = p
 	}
 	//保存回去db
 	db.Driver.Save(&news)
@@ -174,21 +170,20 @@ func ListNews(ctx iris.Context,auth authbase.AuthAuthorization){
 
 //todo  add some words  还要反序列化  done
 var newsField = []string{
-	"Id","Title","Content","Introduction","NewsLabelId","IsPublish","CreateTime","UpdateTime",
+	"Id","Title","Introduction","Content","NewsLabelId","IsPublish","AccountId","CreateTime","UpdateTime",
 }
 
 //Mget --- post    根据前端给来的 id 数组，进行获取更详细的goods信息
 func MgetNews(ctx iris.Context,auth authbase.AuthAuthorization){
-
+	auth.IsLogin()
 	//因为在list接口的时候就已经按照身份进行get ids了，所以这里只要判断一下login就行
 	params := paramsUtils.NewParamsParser(paramsUtils.RequestJsonInterface(ctx))
 	ids := params.List("ids", "id列表")
 	data := make([]interface{}, 0, len(ids))
 	news := db.Driver.GetMany("news_info",ids,db.NewsInfo{})
-
-	for _,new := range news{
+	for _,newa := range news{
 		func(data *[]interface{}){
-			*data = append(*data,getData(new.(db.NewsInfo)))
+			*data = append(*data,getData(newa.(db.NewsInfo)))
 			defer func() {
 				recover()
 			}()
@@ -202,11 +197,16 @@ func MgetNews(ctx iris.Context,auth authbase.AuthAuthorization){
 func getData(news db.NewsInfo)map[string]interface{}{
 	v := paramsUtils.ModelToDict(news,newsField)
 	var pictures []string
-	if err := json.Unmarshal([]byte(news.Picture),&pictures);err != nil{
+	if err := json.Unmarshal([]byte(news.Pictures),&pictures);err != nil{
+		//fmt.Println("sbsbsbsb")
 		panic(newsException.PicturesUnmarshalFail())
 	}
+	//json.Unmarshal([]byte(news.Pictures),&pictures)
+	for _,i := range pictures{
+		fmt.Println(i)
+	}
 	//因为是ModelToDict（Dictation所以就是picture）
-	v["picture"] = pictures
+	v["pictures"] = pictures
 	return v
 }
 
