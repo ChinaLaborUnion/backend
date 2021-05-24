@@ -8,7 +8,7 @@ type NewsInfo struct {
 	//简介
 	Introduction string `json:"introduction"`
 	//内容
-	Content string `json:"content"`
+	Content string `json:"content" gorm:"type:text"`
 	//标签Id
 	NewsLabelId int `json:"news_label_id" gorm:"index;not null"`
 	//是否发布

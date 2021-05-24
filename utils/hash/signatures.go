@@ -103,3 +103,22 @@ func RandInt64(min, max int64) int64 {
 	}
 	return rand.Int63n(max-min) + min
 }
+
+const (
+	TIMEFORMAT       = "20060102150405"
+	NORMALTIMEFORMAT = "2006-01-02 15:04:05"
+	EXPIRETIMEFORMAT = "2006-01-02 15:04"
+)
+
+// 格式化为:20060102150405
+func GetTimeString(t time.Time) string {
+	return t.Format(TIMEFORMAT)
+}
+
+func GetTimeString2(t time.Time) string {
+	return t.Format(NORMALTIMEFORMAT)
+}
+
+func GetTimeString3(t time.Time) string {
+	return t.Format(EXPIRETIMEFORMAT)
+}

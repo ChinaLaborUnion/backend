@@ -13,6 +13,8 @@ type OrderInfo struct {
 
 	TotalPrice int `json:"total_price"`
 
+	Status int16 `json:"status"`
+
 	CreateTime int64 `json:"create_time"`
 
 	UpdateTime int64 `json:"update_time"`
