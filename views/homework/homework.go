@@ -9,7 +9,7 @@ import (
 	paramsUtils "grpc-demo/utils/params"
 )
 
-func CreatHomeWork(ctx iris.Context,auth authbase.AuthAuthorization){
+func CreateHomeWork(ctx iris.Context,auth authbase.AuthAuthorization){
 	//todo 在url中加入班级id
 	auth.CheckLogin()
 	upperId := auth.AccountModel().Id
