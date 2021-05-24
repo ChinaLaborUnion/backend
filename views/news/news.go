@@ -1,8 +1,10 @@
 package news
 
 import (
+	"encoding/json"
 	"github.com/kataras/iris"
 	authbase "grpc-demo/core/auth"
+	homeworkException "grpc-demo/exceptions/homework"
 	newsException "grpc-demo/exceptions/news"
 	"grpc-demo/models/db"
 	paramsUtils "grpc-demo/utils/params"
@@ -37,6 +39,17 @@ func CreateNews(ctx iris.Context,auth authbase.AuthAuthorization)  {
 	}
 	if params.Has("introduction"){
 		news.Introduction = params.Str("introduction","简介")
+	}
+	if params.Has("picture"){
+		picture := params.List("picture","封面图片")
+		var p string
+		//目前理解是将一个东西x 序列化成为了 byte[],error，下面的dataPicture,_ 对应的是byte[],error;然后byte[] 需要转化为string,然后存进DB
+		if dataPicture,err := json.Marshal(picture);err != nil{
+			panic(homeworkException.PicturesMarshalFail())
+		}else{
+			p = string(dataPicture)
+		}
+		news.Picture = p
 	}
 	db.Driver.Create(&news)
 
@@ -82,6 +95,16 @@ func PutNews(ctx iris.Context,auth authbase.AuthAuthorization,nid int){
 	}
 	if params.Has("is_publish"){
 		news.IsPublish = params.Bool("is_publish","是否发布")
+	}
+	if params.Has("picture"){
+		picture := params.List("picture","封面图片")
+		var p string
+		if dataPicture,err := json.Marshal(picture);err != nil{
+			panic(homeworkException.PicturesMarshalFail())
+		}else{
+			p = string(dataPicture)
+		}
+		news.Picture = p
 	}
 	//保存回去db
 	db.Driver.Save(&news)
@@ -134,12 +157,11 @@ func ListNews(ctx iris.Context,auth authbase.AuthAuthorization){
 	//if !auth.IsAdmin() {
 	//	table = table.Where("account_id = ?", auth.AccountModel().Id)
 	//}
-	//       ctx.URLParamIntDefault("x",0)
 	//todo 根据标签过滤       done                  解析路径参数news_label_id 找不到 default值是 0
 	if nlid := ctx.URLParamIntDefault("news_label_id",0); nlid != 0 {
 		table = table.Where("news_label_id = ?",nlid)
 	}
-	//分页操作
+	//分页操作	//       ctx.URLParamIntDefault("x",0)
 	table.Count(&count).Offset((page - 1) * limit).Limit(limit).Select("id, create_time").Find(&lists)
 	//向前端返回 lists
 	ctx.JSON(iris.Map{
@@ -150,8 +172,8 @@ func ListNews(ctx iris.Context,auth authbase.AuthAuthorization){
 	})
 }
 
-//todo  add some words    done
-var x = []string{
+//todo  add some words  还要反序列化  done
+var newsField = []string{
 	"Id","Title","Content","Introduction","NewsLabelId","IsPublish","CreateTime","UpdateTime",
 }
 
@@ -161,12 +183,12 @@ func MgetNews(ctx iris.Context,auth authbase.AuthAuthorization){
 	//因为在list接口的时候就已经按照身份进行get ids了，所以这里只要判断一下login就行
 	params := paramsUtils.NewParamsParser(paramsUtils.RequestJsonInterface(ctx))
 	ids := params.List("ids", "id列表")
-
 	data := make([]interface{}, 0, len(ids))
 	news := db.Driver.GetMany("news_info",ids,db.NewsInfo{})
+
 	for _,new := range news{
 		func(data *[]interface{}){
-			*data = append(*data,paramsUtils.ModelToDict(new,x))
+			*data = append(*data,getData(new.(db.NewsInfo)))
 			defer func() {
 				recover()
 			}()
@@ -174,5 +196,17 @@ func MgetNews(ctx iris.Context,auth authbase.AuthAuthorization){
 	}
 	//返回data
 	ctx.JSON(data)
+}
+
+//反序列化
+func getData(news db.NewsInfo)map[string]interface{}{
+	v := paramsUtils.ModelToDict(news,newsField)
+	var pictures []string
+	if err := json.Unmarshal([]byte(news.Picture),&pictures);err != nil{
+		panic(newsException.PicturesUnmarshalFail())
+	}
+	//因为是ModelToDict（Dictation所以就是picture）
+	v["picture"] = pictures
+	return v
 }
 

@@ -13,6 +13,8 @@ type NewsInfo struct {
 	NewsLabelId int `json:"news_label_id" gorm:"index;not null"`
 	//是否发布
 	IsPublish bool `json:"is_publish"`
+	//封面图片
+	Picture string `json:"picture"`
 	//创建者Id
 	AccountId int `json:"account_id" gorm:"index;not null"`
 
