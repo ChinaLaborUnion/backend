@@ -23,8 +23,15 @@ type Qiniu struct {
 	SecretKey string `ini:"secret_key"` // 密钥
 }
 
+type Mail struct {
+	SmtpHost string `ini:"smtp_host"`
+	Username string `ini:"username"`
+	Password string `ini:"password"`
+}
+
 type SystemConfiguration struct {
 	Redis
 	Mysql
 	Qiniu
+	Mail
 }

@@ -26,8 +26,18 @@ func CreateHomeWork(ctx iris.Context,auth authbase.AuthAuthorization,cid int){
 
 	picture := params.List("picture","图片")
 	video := params.List("video","视频")
-	dataPicture,_ := json.Marshal(picture)
-	dataVideo,_ := json.Marshal(video)
+	var p string
+	var v string
+	if dataPicture,err := json.Marshal(picture);err != nil{
+		panic(homeworkException.PicturesMarshalFail())
+	}else{
+		p = string(dataPicture)
+	}
+	if dataVideo,err := json.Marshal(video);err != nil{
+		panic(homeworkException.VideosMarshalFail())
+	}else{
+		v = string(dataVideo)
+	}
 	//todo 根据班级id 找到课程id 存在表中（适当冗余） done
 	//好的，因为党课班级-学生是1-n，应该是根据班级Id去再次查找班级表的记录，然后去拿党课Id。适当冗余也不错，降到了数据库设计的设计原则中的第二范式。
 	homework := db.HomeWork{
@@ -38,9 +48,9 @@ func CreateHomeWork(ctx iris.Context,auth authbase.AuthAuthorization,cid int){
 		//课程id
 		CourseId :signUp.CourseId,
 		//图片
-		Picture : string(dataPicture),
+		Picture : p,
 		//视频
-		Video : string(dataVideo),
+		Video : v,
 	}
 	db.Driver.Create(&homework)
 	ctx.JSON(iris.Map{
@@ -73,14 +83,24 @@ func PutHomeWork(ctx iris.Context,auth authbase.AuthAuthorization,hid int)  {
 	//todo 以下三条不需要 也不能修改  done  属于不可修改字段
 
 	if params.Has("picture"){
+		var p string
 		picture := params.List("picture","图片")
-		dataPicture,_ := json.Marshal(picture)
-		homework.Picture = string(dataPicture)
+		if dataPicture,err := json.Marshal(picture);err != nil{
+			panic(homeworkException.PicturesMarshalFail())
+		}else{
+			p = string(dataPicture)
+		}
+		homework.Picture = p
 	}
 	if params.Has("video"){
+		var v string
 		video := params.List("video","视频")
-		dataVideo,_ := json.Marshal(video)
-		homework.Picture = string(dataVideo)
+		if dataVideo,err := json.Marshal(video);err != nil{
+			panic(homeworkException.VideosMarshalFail())
+		}else{
+			v = string(dataVideo)
+		}
+		homework.Video = v
 	}
 	db.Driver.Save(&homework)
 	ctx.JSON(iris.Map{

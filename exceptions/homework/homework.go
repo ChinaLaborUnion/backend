@@ -18,6 +18,22 @@ func PicturesUnmarshalFail() models.RestfulAPIResult {
 	}
 }
 
+func VideosMarshalFail() models.RestfulAPIResult {
+	return models.RestfulAPIResult{
+		Status:  false,
+		ErrCode: 5400,
+		Message: "视频列表序列化失败",
+	}
+}
+
+func VideosUnmarshalFail() models.RestfulAPIResult {
+	return models.RestfulAPIResult{
+		Status:  false,
+		ErrCode: 5400,
+		Message: "视频列表反序列化失败",
+	}
+}
+
 func IllegalModify() models.RestfulAPIResult {
 	return models.RestfulAPIResult{
 		Status:  false,

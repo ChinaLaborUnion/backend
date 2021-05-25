@@ -20,4 +20,12 @@ func NoPermission() models.RestfulAPIResult {
 	}
 }
 
+func AccountNotFount() models.RestfulAPIResult {
+	return models.RestfulAPIResult{
+		Status: false,
+		ErrCode: 5301,
+		Message: "账户不存在",
+	}
+}
+
 

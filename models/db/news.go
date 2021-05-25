@@ -14,7 +14,7 @@ type NewsInfo struct {
 	//是否发布
 	IsPublish bool `json:"is_publish"`
 	//封面图片
-	Picture string `json:"picture"`
+	Pictures string `json:"pictures"`
 	//创建者Id
 	AccountId int `json:"account_id" gorm:"index;not null"`
 
