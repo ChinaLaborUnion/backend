@@ -10,13 +10,13 @@ type PartyCourse struct {
 	AccountId int `json:"account_id" gorm:"not null;index"`
 
 	// 课程简介
-	CourseBrief string `json:"party_course_brief"`
+	CourseBrief string `json:"party_course_brief" gorm:"type:text"`
 
 	// 课程封面
 	CourseCover string `json:"party_course_cover"`
 
 	// 作业简介
-	CourseWork string`json:"party_course_work"`
+	CourseWork string`json:"party_course_work" gorm:"type:text"`
 
 	// 商品ID
 	GoodsId int `json:"good_id"`

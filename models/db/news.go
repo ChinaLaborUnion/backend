@@ -6,7 +6,7 @@ type NewsInfo struct {
 	//标题
 	Title string `json:"title"`
 	//简介
-	Introduction string `json:"introduction"`
+	Introduction string `json:"introduction" gorm:"type:text"`
 	//内容
 	Content string `json:"content" gorm:"type:text"`
 	//标签Id
