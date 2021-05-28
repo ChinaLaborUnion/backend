@@ -17,12 +17,13 @@ func CreatSignUp(ctx iris.Context,auth authbase.AuthAuthorization)  {
 	//TODO 选课码-班
 	params := paramsUtils.NewParamsParser(paramsUtils.RequestJsonInterface(ctx))
 	//classid := params.Int("class_id","班级id")
+	cid := params.Int("course_id","course_id")
 	//post方法写选课码
 	code := params.Str("code","选课码")
 	//var v db.Class
 	var c db.PartyClass
 	//通过选课码查找class1.id
-	if err := db.Driver.Where("code = ?",code).First(&c).Error;err != nil{
+	if err := db.Driver.Where("code = ? and party_course_id = ?",code,cid).First(&c).Error;err != nil{
 		panic(signupException.SignupClassIdNotfound())
 	}
 	//classid = v.Id
@@ -34,7 +35,7 @@ func CreatSignUp(ctx iris.Context,auth authbase.AuthAuthorization)  {
 		//CourseId: v.CourseId,
 		UserId: userid,
 		ClassId: c.Id,
-		CourseId: c.PartyCourseId,
+		CourseId: cid,
 		Status: signUpEnum.Doing,
 	}
 	db.Driver.Create(&signup)
