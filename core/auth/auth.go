@@ -30,7 +30,7 @@ func NewAuthAuthorization(ctx iris.Context) AuthAuthorization {
 
 	var authorization AuthAuthorization
 	fmt.Println(mode)
-	if mode == "client" {
+	if mode == "app" {
 		authorization = &clientAuthAuthorization{
 			isLogin: false,
 			Context: ctx,
