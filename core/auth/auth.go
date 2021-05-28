@@ -20,7 +20,7 @@ type AuthAuthorization interface {
 	CheckLogin()
 	IsAdmin() bool
 	CheckAdmin()
-	AccountModel() *db.Account
+	AccountModel() *db.AccountInfo
 	IsLogin() bool
 	LoadAuthenticationInfo()
 }

@@ -16,12 +16,12 @@ var sess = sessions.New(sessions.Config{
 })
 
 type dAuthAuthorization struct {
-	Account db.Account
+	Account db.AccountInfo
 	isLogin bool
 	Context iris.Context
 }
 
-func (r *dAuthAuthorization) AccountModel() *db.Account {
+func (r *dAuthAuthorization) AccountModel() *db.AccountInfo {
 	return &r.Account
 }
 

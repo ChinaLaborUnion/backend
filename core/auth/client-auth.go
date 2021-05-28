@@ -12,12 +12,12 @@ import (
 )
 
 type clientAuthAuthorization struct {
-	Account db.Account
+	Account db.AccountInfo
 	isLogin bool
 	Context iris.Context
 }
 
-func (r *clientAuthAuthorization) AccountModel() *db.Account {
+func (r *clientAuthAuthorization) AccountModel() *db.AccountInfo {
 	return &r.Account
 }
 
