@@ -55,6 +55,7 @@ Conn:
 		&GoodsInfo{},&OrderInfo{},
 		&HomeWork{},
 		&TransactionInfo{},&WxPayOrder{},&HomeWork{},
+		&AccountInfo{},
 	)
 }
 

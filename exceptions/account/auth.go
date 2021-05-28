@@ -28,4 +28,28 @@ func AccountNotFount() models.RestfulAPIResult {
 	}
 }
 
+func EmailSendFail() models.RestfulAPIResult {
+	return models.RestfulAPIResult{
+		Status: false,
+		ErrCode: 5301,
+		Message: "验证码发送失败",
+	}
+}
+
+func RedisFail() models.RestfulAPIResult {
+	return models.RestfulAPIResult{
+		Status: false,
+		ErrCode: 5301,
+		Message: "缓存操作失败",
+	}
+}
+
+func ValidatedFail() models.RestfulAPIResult {
+	return models.RestfulAPIResult{
+		Status: false,
+		ErrCode: 5301,
+		Message: "验证码错误",
+	}
+}
+
 
