@@ -52,4 +52,19 @@ func ValidatedFail() models.RestfulAPIResult {
 	}
 }
 
+func EmailValidatedFail() models.RestfulAPIResult {
+	return models.RestfulAPIResult{
+		Status: false,
+		ErrCode: 5301,
+		Message: "邮箱格式错误",
+	}
+}
+
+func EmailRepeated() models.RestfulAPIResult {
+	return models.RestfulAPIResult{
+		Status: false,
+		ErrCode: 5301,
+		Message: "邮箱已存在",
+	}
+}
 

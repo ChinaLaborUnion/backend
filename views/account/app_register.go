@@ -50,11 +50,15 @@ func Register(ctx iris.Context,auth authbase.AuthAuthorization)  {
 
 func RegisterByEmail(ctx iris.Context)  {
 	params := paramsUtils.NewParamsParser(paramsUtils.RequestJsonInterface(ctx))
-
-	//todo 验证邮箱格式
-
+	//验证邮箱格式
 	email := params.Str("email", "email")
-
+	if !mailUtils.CheckMailFormat(email){
+		panic(AccountException.EmailValidatedFail())
+	}
+	//验证邮箱是否存在
+	if err := db.Driver.Where("email = ?",email).Count(db.AccountInfo{}).Limit(1);err == nil{
+		panic(AccountException.EmailRepeated())
+	}
 	v := hash.GetRandomString(5)
 	//存入缓存
 	if _,err := cache.Redis.Do(constants.DbNumberEmail, "set", v, email,60*5);err != nil{
@@ -76,8 +80,6 @@ func IsEmailSend(ctx iris.Context,auth authbase.AuthAuthorization){
 	value  := params.Str("value","value")
 	password := params.Str("password","password")
 	nickname := params.Str("nickname","nickname")
-
-	//todo 验证邮箱是否已经注册
 
 	v, err := redis.String(cache.Redis.Do(constants.DbNumberEmail, "get", value))
 	if err == nil && v == email {
