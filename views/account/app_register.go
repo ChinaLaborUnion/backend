@@ -11,6 +11,7 @@ import (
 	"grpc-demo/utils/hash"
 	mailUtils "grpc-demo/utils/mail"
 	paramsUtils "grpc-demo/utils/params"
+	"strings"
 )
 
 func RegisterByEmail(ctx iris.Context)  {
@@ -33,6 +34,7 @@ func RegisterByEmail(ctx iris.Context)  {
 func setEmail(email string) {
 	v := hash.GetRandomString(5)
 	//存入缓存
+	v = strings.ToLower(v)
 	if _,err := cache.Redis.Do(constants.DbNumberEmail, "set", v, email,60*5);err != nil{
 		panic(AccountException.RedisFail())
 	}
@@ -42,6 +44,7 @@ func setEmail(email string) {
 }
 //邮箱验证是否成功
 func isEmailSuccess(value string,email string) bool{
+	value = strings.ToLower(value)
 	v, err := redis.String(cache.Redis.Do(constants.DbNumberEmail, "get", value))
 	if err == nil && v == email{
 		return true

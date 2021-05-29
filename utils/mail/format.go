@@ -12,3 +12,14 @@ func CheckMailFormat(email string) bool {
 	}
 	return true
 }
+
+func IgnoreSensMatch(value string) bool {
+
+	valueCompile := regexp.MustCompile(`(?i)`+value)
+
+	r := valueCompile.MatchString(value)
+	if !r {
+		return false
+	}
+	return true
+}
