@@ -38,6 +38,7 @@ func CreatePartyCourse(ctx iris.Context,auth authbase.AuthAuthorization){
 		}
 		partyCourse.GoodsId = goodId
 	}
+
 	tx := db.Driver.Begin()
 
 	if err := tx.Create(&partyCourse).Error;err != nil{

@@ -162,11 +162,11 @@ func HomeWorkList(ctx iris.Context,auth authbase.AuthAuthorization)  {
 //改了
 func DeleteHomeWork(ctx iris.Context,auth authbase.AuthAuthorization,hid int)  {
 	auth.CheckLogin()
-	//todo 卡权限 不是作业发布者不能删除   done
+	//todo 卡权限 不是作业发布者不能删除,   done：就是管理员或者作业发布者才可以delete
 	var homework db.HomeWork
 	if err:= db.Driver.GetOne("homework",hid,&homework);err == nil {
 		//拿到该条记录
-		if auth.AccountModel().Id == homework.UpperId {
+		if auth.AccountModel().Id == homework.UpperId || auth.IsAdmin(){
 			db.Driver.Delete(homework)
 		}else{
 			panic(homeworkException.IllegalDelete())
