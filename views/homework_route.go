@@ -13,5 +13,5 @@ func HomeWorkRoute(app *iris.Application)  {
 	HomeWorkRouter.Put("/{hid:int}",hero.Handler(homework.PutHomeWork))
 	HomeWorkRouter.Get("/list",hero.Handler(homework.HomeWorkList))
 	HomeWorkRouter.Delete("/{hid:int}",hero.Handler(homework.DeleteHomeWork))
-	HomeWorkRouter.Post("/_megt",hero.Handler(homework.HomeWorkMegt))
+	HomeWorkRouter.Post("/_mget",hero.Handler(homework.HomeWorkMegt))
 }

@@ -53,8 +53,7 @@ Conn:
 		&SignUp{},
 		&NewsInfo{},&NewsLabel{},
 		&GoodsInfo{},&OrderInfo{},
-		&HomeWork{},
-		&TransactionInfo{},&WxPayOrder{},&HomeWork{},
+		&TransactionInfo{},&WxPayOrder{},&Homework{},
 		&AccountInfo{},
 	)
 }

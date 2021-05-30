@@ -2,7 +2,7 @@ package db
 
 type PartyClass struct {
 	Id int `gorm:"primary_key" json:"id"`
-	//授课老师ID
+	//授课老师ID 也是创建者
 	AccountId int `json:"account_id" gorm:"not null;index"`
 	//todo 党课id   done  1个党课可以创建n个班级     外键    done
 	PartyCourseId int `json:"party_course_id" gorm:"not null;index"`

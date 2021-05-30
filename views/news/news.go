@@ -202,9 +202,6 @@ func getData(news db.NewsInfo)map[string]interface{}{
 		panic(newsException.PicturesUnmarshalFail())
 	}
 	//json.Unmarshal([]byte(news.Pictures),&pictures)
-	for _,i := range pictures{
-		fmt.Println(i)
-	}
 	//因为是ModelToDict（Dictation所以就是picture）
 	v["pictures"] = pictures
 	return v

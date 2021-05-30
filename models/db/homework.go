@@ -1,8 +1,8 @@
 package db
 
-type HomeWork struct {
+type Homework struct {
 	Id int `json:"id" gorm:"primary_key"`
-	//上传者ID
+	//上传者ID   学生ID
 	UpperId int `json:"upper_id"`
 	//班级id
 	ClassId int `json:"class_id"`
