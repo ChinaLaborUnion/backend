@@ -8,7 +8,7 @@ import (
 )
 
 func GetAccountInfo(ctx iris.Context,auth authbase.AuthAuthorization){
-	auth.IsLogin()
+	auth.CheckLogin()
 	account := auth.AccountModel()
 
 	ctx.JSON(iris.Map{
