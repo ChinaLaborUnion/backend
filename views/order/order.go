@@ -53,6 +53,7 @@ func CreateOrder(ctx iris.Context,auth authbase.AuthAuthorization){
 	tx.Commit()
 	ctx.JSON(iris.Map{
 		"id":order.ID,
+		"money":totalPrice,
 	})
 }
 
