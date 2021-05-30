@@ -87,3 +87,8 @@ func BinaryToDecimal(bit string) (num int) {
 	num = int(tempF)
 	return
 }
+
+func Save2Decimal(num float64) float32 {
+	num = math.Floor(num*100) / 100
+	return float32(num)
+}
