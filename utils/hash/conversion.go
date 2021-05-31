@@ -89,6 +89,6 @@ func BinaryToDecimal(bit string) (num int) {
 }
 
 func Save2Decimal(num float64) float32 {
-	num = math.Floor(num*100) / 100
+	num = math.Floor(num) / 100
 	return float32(num)
 }

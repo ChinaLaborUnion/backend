@@ -3,11 +3,13 @@ package transaction
 import (
 	"bytes"
 	authbase "grpc-demo/core/auth"
+	accountException "grpc-demo/exceptions/account"
 	"grpc-demo/exceptions/goods"
 	"grpc-demo/exceptions/order"
 	transactionException "grpc-demo/exceptions/transaction"
 	"grpc-demo/models/db"
 	util "grpc-demo/utils/hash"
+	logUtils "grpc-demo/utils/log"
 	"grpc-demo/views/transaction/payment/ali"
 	"grpc-demo/views/transaction/payment/wx"
 	"grpc-demo/views/transaction/payment/wxv2"
@@ -16,14 +18,14 @@ import (
 )
 
 func PaymentMiddleware(ctx iris.Context, auth authbase.AuthAuthorization, oid, tid int) {
-	//auth.CheckLogin()
+	auth.CheckLogin()
 	var order db.OrderInfo
 	if err := db.Driver.GetOne("order", oid, &order); err != nil {
 		panic(orderException.OrderNotExsit())
 	}
-	//if order.AccountID != auth.AccountModel().Id || auth.IsAdmin() {
-	//	panic(accountException.NoPermission())
-	//}
+	if order.AccountID != auth.AccountModel().Id || auth.IsAdmin() {
+		panic(accountException.NoPermission())
+	}
 
 
 	//读取商品信息
@@ -45,6 +47,8 @@ func PaymentMiddleware(ctx iris.Context, auth authbase.AuthAuthorization, oid, t
 	aliTotalAmount := util.Float32ToString(util.Save2Decimal(float64(order.TotalPrice)))
 	wxTotalAmount := order.TotalPrice
 	//openId := auth.AccountModel().OpenId
+
+	logUtils.Println(aliTotalAmount)
 
 	switch tid {
 	case 1:
