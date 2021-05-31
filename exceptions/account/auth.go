@@ -28,6 +28,14 @@ func AccountNotFount() models.RestfulAPIResult {
 	}
 }
 
+func WrongInput() models.RestfulAPIResult {
+	return models.RestfulAPIResult{
+		Status: false,
+		ErrCode: 5301,
+		Message: "账号或密码错误",
+	}
+}
+
 func EmailSendFail() models.RestfulAPIResult {
 	return models.RestfulAPIResult{
 		Status: false,

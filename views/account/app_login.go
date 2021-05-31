@@ -4,6 +4,7 @@ import (
 	"github.com/kataras/iris"
 	"grpc-demo/constants"
 	authbase "grpc-demo/core/auth"
+	AccountException "grpc-demo/exceptions/account"
 	"grpc-demo/models/db"
 	paramsUtils "grpc-demo/utils/params"
 )
@@ -15,7 +16,7 @@ func AppLoginByEmail(ctx iris.Context,auth authbase.AuthAuthorization) {
 	email := params.Str("email","email")
 	password := params.Str("password","password")
 	if err := db.Driver.Where("email = ? and password = ?",email,password).First(&account).Error;err != nil{
-		panic("account not exsit")
+		panic(AccountException.WrongInput())
 	}
 
 	token := auth.SetCookie(account.Id)

@@ -2,11 +2,12 @@ package cache
 
 import (
 	"fmt"
-	"github.com/gomodule/redigo/redis"
 	"grpc-demo/utils"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gomodule/redigo/redis"
 )
 
 var Redis redisPool
