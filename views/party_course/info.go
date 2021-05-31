@@ -135,7 +135,15 @@ func PutPartyCourse(ctx iris.Context,auth authbase.AuthAuthorization,cid int){
 
 func DeletePartyCourse(ctx iris.Context,cid int,auth authbase.AuthAuthorization){
 	auth.CheckLogin()
+
+	var partyClass db.PartyClass
+
+	if err1 := db.Driver.Where("party_course_id =?",cid).First(&partyClass).Error;err1 == nil{
+		panic(courseException.ClassExist())
+	}
+
 	var partyCourse db.PartyCourse
+
 	if err := db.Driver.GetOne("party_course",cid,&partyCourse);err == nil{
 		if partyCourse.AccountId != auth.AccountModel().Id{
 			panic(accountException.NoPermission())
