@@ -152,7 +152,7 @@ func ListNews(ctx iris.Context,auth authbase.AuthAuthorization){
 
 //todo  add some words  还要反序列化  done
 var newsField = []string{
-	"Id","Title","Introduction","Content","NewsLabelId","IsPublish","CreateTime","UpdateTime",
+	"Id","Title","Introduction","Content","NewsLabelId","IsPublish","CreateTime","UpdateTime","Picture",
 }
 
 //Mget --- post    根据前端给来的 id 数组，进行获取更详细的goods信息
