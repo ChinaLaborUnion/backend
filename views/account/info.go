@@ -45,6 +45,44 @@ func PutAccountInfo(ctx iris.Context,auth authbase.AuthAuthorization)  {
 	})
 }
 
+func ListAccount(ctx iris.Context,auth authbase.AuthAuthorization){
+	auth.CheckLogin()
+	var lists []struct{
+		ID         int   `json:"id"`
+		CreateTime int64 `json:"create_time"`
+	}
+	var count int
+
+	table := db.Driver.Table("account_info")
+	limit := ctx.URLParamIntDefault("limit", 10)
+	page := ctx.URLParamIntDefault("page", 1)
+
+	//if !auth.IsAdmin() {
+	//	table = table.Where("account_id = ?", auth.AccountModel().Id)
+	//}
+	//
+	//if author := ctx.URLParamIntDefault("author_id", 0); author != 0 && auth.IsAdmin() {
+	//	table = table.Where("account_id = ?", author)
+	//}
+	//
+	//if status := ctx.URLParamIntDefault("status", 0); status != 0 {
+	//	table = table.Where("status = ?", status)
+	//}
+	//
+	//if startTime := ctx.URLParamInt64Default("start_time", 0); startTime != 0 {
+	//	endTime := ctx.URLParamInt64Default("end_time", 0)
+	//	table = table.Where("create_time between ? and ?", startTime, endTime)
+	//}
+
+	table.Count(&count).Order("create_time desc").Offset((page - 1) * limit).Limit(limit).Select("id, create_time").Find(&lists)
+
+	ctx.JSON(iris.Map{
+		"orders": lists,
+		"total": count,
+		"limit": limit,
+		"page":  page,
+	})
+}
 
 func MgetAccounts(ctx iris.Context,auth authbase.AuthAuthorization){
 	auth.CheckAdmin()
