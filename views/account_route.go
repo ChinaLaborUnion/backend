@@ -23,4 +23,6 @@ func RegisterAccountRouters(app *iris.Application) {
 	infoRouter.Post("/reset_email", hero.Handler(account.ResetEmail))
 	infoRouter.Get("/get", hero.Handler(account.GetAccountInfo))
 	infoRouter.Put("/put", hero.Handler(account.PutAccountInfo))
+	infoRouter.Post("/_mget", hero.Handler(account.MgetAccounts))
+
 }
