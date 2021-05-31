@@ -2,7 +2,6 @@ package homework
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/kataras/iris"
 	authbase "grpc-demo/core/auth"
 	classException "grpc-demo/exceptions/class"
@@ -143,30 +142,15 @@ func HomeWorkList(ctx iris.Context,auth authbase.AuthAuthorization)  {
 			table = table.Where("class_id = ?",cid)
 		}
 	}else{
-		//非管理员 如果是普通用户[包含创建班级的老师和学生]也传了aid，那就不管他，接下来就是cid班级
-		//如果登陆者是创建cid的老师，那么在 加入班级signUp表中找到所有的学生
+		//非管理员,如果是普通用户[包含创建班级的老师和学生]也传了aid，那就不管他，接下来就是cid班级.如果登陆者是创建cid的老师，那么在 加入班级signUp表中找到所有的学生
 		var class db.PartyClass
 		if err:= db.Driver.GetOne("party_class",cid,&class);err == nil {
 			//拿到数据了，判断老师是不是这个班级的创建者
-			sctable := db.Driver.Table("sign_up")
 			if class.AccountId == auth.AccountModel().Id {
-				//TODO debug 如果是老师调用这个接口，怎么办
-				fmt.Print(auth.AccountModel().Id,cid)
-				fmt.Println("我是老师id是?" + ",调用homework list接口,查看班级id为?下所有学生的作业")
-				//老师应该拿到加入这个班级的所有学生的作业;班级id过滤sign_up表   selete user_id from SignUp where class_id = ?
-				var stuids[] int
-				var cc int
-				sctable = sctable.Where("class_id = ?",cid).Select("user_id").Find(&stuids).Count(&cc)
-				fmt.Println(cc)
-				for _,i := range stuids {
-					fmt.Println(i)
-				}
-				//select * from homework where class_id = ? and upper_id in (selete user_id from SignUp where class_id = ?)
-				table = table.Where("upper_id in (?) and class_id = ?",stuids,cid)
+				//如果是老师调用这个接口，怎么办,从作业表里面拿，上传到该班级的作业都拿过来
+				table = table.Where("class_id = ?",cid)
 			}else {
 				//学生查看自己某个班级下的作业
-				fmt.Print(auth.AccountModel().Id,class.Id)
-				fmt.Println("我是学生id是？?" + ",调用homework list接口，查看班级id为？自己的作业")
 				table = table.Where("class_id = ? AND upper_id = ?",cid,auth.AccountModel().Id)
 			}
 		}else{
@@ -198,21 +182,10 @@ func DeleteHomeWork(ctx iris.Context,auth authbase.AuthAuthorization,hid int)  {
 		}
 	}
 	//todo 这里逻辑有问题 重写    done  重写如上
-	//判断登录状态，用登录者id在class1表中查找账号id，如果非创建者账号，或非管理员，报错
-	//if err := db.Driver.Table("class1").Where("account_id = ?",auth.AccountModel().Id);err == nil || !auth.IsAdmin() {
-	//	panic("无权限")
-	//}
-	//if err := db.Driver.Table("home_work").Where("id = ?",cid);err == nil{
-	//	//成功拿到这条记录
-	//	//判断登陆者是不是创建者   done
-	//	db.Driver.Delete(homeWork)
-	//}
-	//response
 	ctx.JSON(iris.Map{
 		"id":hid,
 	})
 }
-
 
 //todo 重写 改回传ids的形式
 //todo 图片视频要反序列化回去
