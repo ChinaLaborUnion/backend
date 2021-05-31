@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"github.com/kataras/iris"
 	authbase "grpc-demo/core/auth"
-	classException "grpc-demo/exceptions/class"
 	homeworkException "grpc-demo/exceptions/homework"
 	"grpc-demo/models/db"
 	paramsUtils "grpc-demo/utils/params"
@@ -120,6 +119,7 @@ func HomeWorkList(ctx iris.Context,auth authbase.AuthAuthorization)  {
 		Id         int   `json:"id"`
 		CreateTime int64 `json:"create_time"`
 	}
+	var count int
 	//调用接口的角色分为用户[创建班级的老师和上传作业的学生]以及管理者       用户可以按照cid（班级id）过滤；管理员可以按照cid和aid（账号id）进行过滤
 	table := db.Driver.Table("homework")
 	//一页多少条记录
@@ -127,37 +127,54 @@ func HomeWorkList(ctx iris.Context,auth authbase.AuthAuthorization)  {
 	//分页
 	page := ctx.URLParamIntDefault("page", 1)
 	//班级id
-	cid := ctx.URLParamIntDefault("cid",0)
-	//账号id
-	aid := ctx.URLParamIntDefault("aid",0)
-
-	//管理员
-	if auth.IsAdmin() {
-		if aid != 0{
-			//select * from homework where aid = upper_id
-			table = table.Where("upper_id = ?",aid)
-		}
-		if cid != 0{
-			//select * from homework where cid = class_id
-			table = table.Where("class_id = ?",cid)
-		}
-	}else{
-		//非管理员,如果是普通用户[包含创建班级的老师和学生]也传了aid，那就不管他，接下来就是cid班级.如果登陆者是创建cid的老师，那么在 加入班级signUp表中找到所有的学生
+	if cid := ctx.URLParamIntDefault("cid",0);cid != 0{
 		var class db.PartyClass
-		if err:= db.Driver.GetOne("party_class",cid,&class);err == nil {
-			//拿到数据了，判断老师是不是这个班级的创建者
-			if class.AccountId == auth.AccountModel().Id {
-				//如果是老师调用这个接口，怎么办,从作业表里面拿，上传到该班级的作业都拿过来
+		if err:= db.Driver.GetOne("party_class",cid,&class);err == nil{
+			if class.AccountId == auth.AccountModel().Id || auth.IsAdmin(){
 				table = table.Where("class_id = ?",cid)
-			}else {
-				//学生查看自己某个班级下的作业
+			}else{
 				table = table.Where("class_id = ? AND upper_id = ?",cid,auth.AccountModel().Id)
 			}
 		}else{
-			panic(classException.ClassNotFount())
+			table = table.Where("id = ?",0)
 		}
 	}
-	var count int
+
+	//账号id
+	if aid := ctx.URLParamIntDefault("aid",0);aid != 0{
+		if !auth.IsAdmin(){
+			table = table.Where("upper_id = ?",auth.AccountModel().Id)
+		}else{
+			table = table.Where("upper_id = ?",aid)
+		}
+	}
+
+	////管理员
+	//if auth.IsAdmin() {
+	//	if aid != 0{
+	//		//select * from homework where aid = upper_id
+	//		table = table.Where("upper_id = ?",aid)
+	//	}
+	//	if cid != 0{
+	//		//select * from homework where cid = class_id
+	//		table = table.Where("class_id = ?",cid)
+	//	}
+	//}else{
+	//	//非管理员,如果是普通用户[包含创建班级的老师和学生]也传了aid，那就不管他，接下来就是cid班级.如果登陆者是创建cid的老师，那么在 加入班级signUp表中找到所有的学生
+	//	var class db.PartyClass
+	//	if err:= db.Driver.GetOne("party_class",cid,&class);err == nil {
+	//		//拿到数据了，判断老师是不是这个班级的创建者
+	//		if class.AccountId == auth.AccountModel().Id {
+	//			//如果是老师调用这个接口，怎么办,从作业表里面拿，上传到该班级的作业都拿过来
+	//			table = table.Where("class_id = ?",cid)
+	//		}else {
+	//			//学生查看自己某个班级下的作业
+	//			table = table.Where("class_id = ? AND upper_id = ?",cid,auth.AccountModel().Id)
+	//		}
+	//	}else{
+	//		panic(classException.ClassNotFount())
+	//	}
+	//}
 
 	table.Count(&count).Offset((page - 1) * limit).Limit(limit).Select("id,create_time").Find(&lists)
 	ctx.JSON(iris.Map{
@@ -198,6 +215,11 @@ func HomeWorkMegt(ctx iris.Context,auth authbase.AuthAuthorization){
 	data := make([]interface{}, 0, len(ids))
 	homeworks := db.Driver.GetMany("homework",ids,db.Homework{})
 	for _,hw := range homeworks{
+		var class db.PartyClass
+		db.Driver.GetOne("party_class",hw.(db.Homework).ClassId,&class)
+		if hw.(db.Homework).UpperId != auth.AccountModel().Id && !auth.IsAdmin() && class.AccountId != auth.AccountModel().Id{
+			continue
+		}
 		func(data *[]interface{}){
 			*data = append(*data,getData(hw.(db.Homework)))
 			defer func() {
