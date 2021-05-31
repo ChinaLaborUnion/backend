@@ -6,7 +6,7 @@ const (
 	AppSecret       = "dd92a46a33c3bbbe1a0cd797e3ca9148"
 	PrivateKey      = "dbWDgw10AtClTuzdqIctPwlhhn4bxPgs"
 	AesKey          = "VwkZ319iarMDtgPKl8MSV9s3xjAVnQdt"
-	ApiKey			=""
+	ApiKey			= "dbWDgw10AtClTuzdqIctPwlhhn4bxPgs"
 	PrivateSerialNo = "436CDEF107DA3994FFD85FC0552B172BFB835012"
 )
 

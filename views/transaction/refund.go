@@ -3,19 +3,18 @@ package transaction
 import (
 	"bytes"
 	authbase "grpc-demo/core/auth"
-	"grpc-demo/exceptions/goods"
-	"grpc-demo/exceptions/order"
+	goodsException "grpc-demo/exceptions/goods"
+	orderException "grpc-demo/exceptions/order"
 	transactionException "grpc-demo/exceptions/transaction"
 	"grpc-demo/models/db"
 	util "grpc-demo/utils/hash"
-	"grpc-demo/views/transaction/payment/ali"
-	"grpc-demo/views/transaction/payment/wx"
-	"grpc-demo/views/transaction/payment/wxv2"
+	"grpc-demo/views/transaction/refund/ali"
 
 	"github.com/kataras/iris"
 )
 
-func PaymentMiddleware(ctx iris.Context, auth authbase.AuthAuthorization, oid, tid int) {
+func RefundMiddleware(ctx iris.Context, auth authbase.AuthAuthorization, oid, tid int ){
+
 	//auth.CheckLogin()
 	var order db.OrderInfo
 	if err := db.Driver.GetOne("order", oid, &order); err != nil {
@@ -43,21 +42,21 @@ func PaymentMiddleware(ctx iris.Context, auth authbase.AuthAuthorization, oid, t
 	GoodsInfo := buf
 	AccountId := auth.AccountModel().Id
 	aliTotalAmount := util.Float32ToString(util.Save2Decimal(float64(order.TotalPrice)))
-	wxTotalAmount := order.TotalPrice
+	//wxTotalAmount := order.TotalPrice
 	//openId := auth.AccountModel().OpenId
 
 	switch tid {
 	case 1:
-		ali.PaymentForAli(ctx, oid, AccountId, OutTradeNo, GoodsInfo.String(), aliTotalAmount)
+		ali.RefundForAli(ctx, oid, AccountId, OutTradeNo, GoodsInfo.String(), aliTotalAmount)
 
-	case 2:
-		wx.PaymentForWx(ctx, oid, AccountId, wxTotalAmount, OutTradeNo, GoodsInfo.String())
-
-	case 3:
-		wxv2.PaymentForWxV2(ctx, oid, AccountId, wxTotalAmount, OutTradeNo, GoodsInfo.String())
+	//case 2:
+	//	wx.PaymentForWx(ctx, oid, AccountId, wxTotalAmount, OutTradeNo, GoodsInfo.String())
+	//
+	//case 3:
+	//	wxv2.PaymentForWxV2(ctx, oid, AccountId, wxTotalAmount, OutTradeNo, GoodsInfo.String())
 
 	default:
 		panic(transactionException.StatusIsNotAllow())
 	}
-
 }
+
