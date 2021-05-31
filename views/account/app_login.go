@@ -15,6 +15,9 @@ func AppLoginByEmail(ctx iris.Context,auth authbase.AuthAuthorization) {
 	var account db.AccountInfo
 	email := params.Str("email","email")
 	password := params.Str("password","password")
+	if err := db.Driver.Where("email = ?",email).First(&account).Error;err!=nil{
+		panic(AccountException.AccountNotFount())
+	}
 	if err := db.Driver.Where("email = ? and password = ?",email,password).First(&account).Error;err != nil{
 		panic(AccountException.WrongInput())
 	}
