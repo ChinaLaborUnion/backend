@@ -127,7 +127,8 @@ func HomeWorkList(ctx iris.Context,auth authbase.AuthAuthorization)  {
 	//分页
 	page := ctx.URLParamIntDefault("page", 1)
 	//班级id
-	if cid := ctx.URLParamIntDefault("cid",0);cid != 0{
+	cid := ctx.URLParamIntDefault("cid",0)
+	if cid != 0{
 		var class db.PartyClass
 		if err:= db.Driver.GetOne("party_class",cid,&class);err == nil{
 			if class.AccountId == auth.AccountModel().Id || auth.IsAdmin(){
@@ -141,13 +142,19 @@ func HomeWorkList(ctx iris.Context,auth authbase.AuthAuthorization)  {
 	}
 
 	//账号id
-	if aid := ctx.URLParamIntDefault("aid",0);aid != 0{
+	aid := ctx.URLParamIntDefault("aid",0)
+	if aid != 0{
 		if !auth.IsAdmin(){
 			table = table.Where("upper_id = ?",auth.AccountModel().Id)
 		}else{
 			table = table.Where("upper_id = ?",aid)
 		}
 	}
+	if cid == 0 && aid == 0 && !auth.IsAdmin(){
+		table = table.Where("upper_id = ?",auth.AccountModel().Id)
+	}
+
+
 
 	////管理员
 	//if auth.IsAdmin() {
