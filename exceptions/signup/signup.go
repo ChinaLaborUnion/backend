@@ -41,3 +41,11 @@ func StatusIsNotAllow() models.RestfulAPIResult {
 		Message: "状态类型不允许",
 	}
 }
+
+func SignedUp() models.RestfulAPIResult {
+	return models.RestfulAPIResult{
+		Status:  false,
+		ErrCode: 7070,
+		Message: "已经报名",
+	}
+}
