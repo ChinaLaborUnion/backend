@@ -17,7 +17,7 @@ func CreateHomeWork(ctx iris.Context,auth authbase.AuthAuthorization,cid int){
 	//todo 如果此人不属于这个班级(学生没有加入班级，不允许上传作业) 不允许发布    done
 	//根据班级id,和登陆者id，去找报名表，select * from signUp where class_id = cid and user_id = auth.AccountModel().Id
 	var signUp db.SignUp
-	if err:= db.Driver.Where("class_id = ? AND user_id = ?",cid,auth.AccountModel().Id).First(&signUp).Error;err != nil {
+	if err:= db.Driver.Where("course_id = ? AND user_id = ?",cid,auth.AccountModel().Id).First(&signUp).Error;err != nil {
 		//找不到
 		panic(homeworkException.IllegalUpload())
 	}
