@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/kataras/iris"
 	authbase "grpc-demo/core/auth"
+	signUpEnum "grpc-demo/enums/sign_up"
 	homeworkException "grpc-demo/exceptions/homework"
 	"grpc-demo/models/db"
 	paramsUtils "grpc-demo/utils/params"
@@ -21,6 +22,7 @@ func CreateHomeWork(ctx iris.Context,auth authbase.AuthAuthorization,cid int){
 		//找不到
 		panic(homeworkException.IllegalUpload())
 	}
+
 	params := paramsUtils.NewParamsParser(paramsUtils.RequestJsonInterface(ctx))
 	//todo 以下两个不需要在body中传     done    这两个东西都在 classId 就是cid ；courseId在那条记录里
 
@@ -54,7 +56,18 @@ func CreateHomeWork(ctx iris.Context,auth authbase.AuthAuthorization,cid int){
 		//视频
 		Video : v,
 	}
-	db.Driver.Create(&homework)
+	tx := db.Driver.Begin()
+
+	if err := tx.Create(&homework).Error;err != nil{
+		tx.Rollback()
+		panic(homeworkException.DoFail())
+	}
+	signUp.Status = signUpEnum.Done
+	if err := tx.Save(&signUp).Error;err != nil{
+		tx.Rollback()
+		panic(homeworkException.DoFail())
+	}
+	tx.Commit()
 	ctx.JSON(iris.Map{
 		"id：":homework.Id,
 	})

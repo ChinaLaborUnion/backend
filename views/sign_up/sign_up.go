@@ -41,7 +41,7 @@ func CreatSignUp(ctx iris.Context,auth authbase.AuthAuthorization)  {
 		UserId: userid,
 		ClassId: c.Id,
 		CourseId: cid,
-		Status: signUpEnum.Doing,
+		Status: signUpEnum.NoDone,
 	}
 	db.Driver.Create(&signup)
 	ctx.JSON(iris.Map{
