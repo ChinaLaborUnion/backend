@@ -122,7 +122,7 @@ func SignUpListByCid(ctx iris.Context,auth authbase.AuthAuthorization,uid int)  
 	limit := ctx.URLParamIntDefault("limit", 10)
 	page := ctx.URLParamIntDefault("page", 1)
 	table.Count(&count).Offset((page - 1) * limit).Limit(limit).
-		Select("id,user_id,class_id").Find(&Lists)
+		Select("id,user_id,class_id,course_id,status").Find(&Lists)
 	ctx.JSON(iris.Map{
 		"Lists" : Lists,
 		"total": count,
@@ -151,7 +151,7 @@ func SignUpListByAid(ctx iris.Context,auth authbase.AuthAuthorization,aid int){
 	limit := ctx.URLParamIntDefault("limit", 10)
 	page := ctx.URLParamIntDefault("page", 1)
 	table.Count(&count).Offset((page - 1) * limit).Limit(limit).
-		Select("id,user_id,class_id,course_id").Find(&Lists)
+		Select("id,user_id,class_id,course_id,status").Find(&Lists)
 	ctx.JSON(iris.Map{
 		"Lists" : Lists,
 		"total": count,
