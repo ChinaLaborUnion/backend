@@ -108,6 +108,8 @@ func SignUpListByCid(ctx iris.Context,auth authbase.AuthAuthorization,uid int)  
 		Id int `json:"id"`
 		UserId int `json:"user_id"`
 		ClassId int `json:"class_id"`
+		CourseId int `json:"course_id"`
+		Status int16 `json:"status"`
 	}
 	var count int
 	var sg db.SignUp
@@ -137,6 +139,7 @@ func SignUpListByAid(ctx iris.Context,auth authbase.AuthAuthorization,aid int){
 		UserId int `json:"user_id"`
 		ClassId int `json:"class_id"`
 		CourseId int `json:"course_id"`
+		Status int16 `json:"status"`
 	}
 	var count int
 	//TODO 判断登录
