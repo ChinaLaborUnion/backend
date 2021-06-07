@@ -14,4 +14,5 @@ func RegisterSignUpRoute(app *iris.Application)  {
 	signupRouter.Get("/list_by_cid/{cid:int}",hero.Handler(sign_up.SignUpListByCid))
 	signupRouter.Delete("/{sid:int}",hero.Handler(sign_up.DeleteSignUp))
 	signupRouter.Get("/list_by_aid/{aid:int}",hero.Handler(sign_up.SignUpListByAid))
+	signupRouter.Get("/list",hero.Handler(sign_up.SignUpList))
 }
