@@ -211,9 +211,9 @@ func DeleteHomeWork(ctx iris.Context,auth authbase.AuthAuthorization,hid int)  {
 	})
 }
 
-//todo 重写 改回传ids的形式
-//todo 图片视频要反序列化回去
-//todo 如果不是作业的创建者或者作业对应课程的老师或者管理者 不能看见作业
+//todo 重写 改回传ids的形式  done
+//todo 图片视频要反序列化回去  done
+//todo 如果不是作业的创建者或者作业对应课程的老师或者管理者 不能看见作业  done
 func HomeWorkMegt(ctx iris.Context,auth authbase.AuthAuthorization){
 	auth.CheckLogin()
 	//因为在list接口的时候就已经按照身份进行get ids了，所以这里只要判断一下login就行
