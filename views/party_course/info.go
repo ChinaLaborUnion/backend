@@ -33,7 +33,8 @@ func CreatePartyCourse(ctx iris.Context,auth authbase.AuthAuthorization){
 		goodId := params.Int("good_id","商品ID")
 
 		//判断商品是否存在
-		if err := db.Driver.GetOne("PartyCourse",goodId,&partyCourse);err == nil{
+		var goods db.GoodsInfo
+		if err := db.Driver.GetOne("goods_info",goodId,&goods);err != nil{
 			panic(courseException.GoodsNotExist())
 		}
 		partyCourse.GoodsId = goodId
@@ -96,7 +97,8 @@ func PutPartyCourse(ctx iris.Context,auth authbase.AuthAuthorization,cid int){
 
 	if params.Has("good_id"){
 		goodId := params.Int("good_id","商品ID")
-		if err := db.Driver.GetOne("PartyCourse",goodId,&partyCourse);err != nil{
+		var goods db.GoodsInfo
+		if err := db.Driver.GetOne("goods_info",goodId,&goods);err != nil{
 			panic(courseException.GoodsNotExist())
 		}
 		partyCourse.GoodsId = goodId
