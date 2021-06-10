@@ -20,6 +20,11 @@ func CreatSignUp(ctx iris.Context,auth authbase.AuthAuthorization)  {
 	cid := params.Int("course_id","course_id")
 	//post方法写选课码
 	code := params.Str("code","选课码")
+
+	var s db.SignUp
+	if err := db.Driver.Where("user_id = ? and course_id = ?",auth.AccountModel().Id,cid).First(&s).Error;err == nil{
+		panic(signupException.SignedUp())
+	}
 	//var v db.Class
 	var c db.PartyClass
 	//通过选课码查找class1.id
@@ -36,7 +41,7 @@ func CreatSignUp(ctx iris.Context,auth authbase.AuthAuthorization)  {
 		UserId: userid,
 		ClassId: c.Id,
 		CourseId: cid,
-		Status: signUpEnum.Doing,
+		Status: signUpEnum.NoDone,
 	}
 	db.Driver.Create(&signup)
 	ctx.JSON(iris.Map{
@@ -103,6 +108,8 @@ func SignUpListByCid(ctx iris.Context,auth authbase.AuthAuthorization,uid int)  
 		Id int `json:"id"`
 		UserId int `json:"user_id"`
 		ClassId int `json:"class_id"`
+		CourseId int `json:"course_id"`
+		Status int16 `json:"status"`
 	}
 	var count int
 	var sg db.SignUp
@@ -115,10 +122,10 @@ func SignUpListByCid(ctx iris.Context,auth authbase.AuthAuthorization,uid int)  
 	limit := ctx.URLParamIntDefault("limit", 10)
 	page := ctx.URLParamIntDefault("page", 1)
 	table.Count(&count).Offset((page - 1) * limit).Limit(limit).
-		Select("id,user_id,class_id").Find(&Lists)
+		Select("id,user_id,class_id,course_id,status").Find(&Lists)
 	ctx.JSON(iris.Map{
-		"Lists:" : Lists,
-		"total:": count,
+		"Lists" : Lists,
+		"total": count,
 		"limit": limit,
 		"page":  page,
 	})
@@ -132,6 +139,7 @@ func SignUpListByAid(ctx iris.Context,auth authbase.AuthAuthorization,aid int){
 		UserId int `json:"user_id"`
 		ClassId int `json:"class_id"`
 		CourseId int `json:"course_id"`
+		Status int16 `json:"status"`
 	}
 	var count int
 	//TODO 判断登录
@@ -143,10 +151,35 @@ func SignUpListByAid(ctx iris.Context,auth authbase.AuthAuthorization,aid int){
 	limit := ctx.URLParamIntDefault("limit", 10)
 	page := ctx.URLParamIntDefault("page", 1)
 	table.Count(&count).Offset((page - 1) * limit).Limit(limit).
-		Select("id,user_id,class_id,course_id").Find(&Lists)
+		Select("id,user_id,class_id,course_id,status").Find(&Lists)
 	ctx.JSON(iris.Map{
-		"Lists:" : Lists,
-		"total:": count,
+		"Lists" : Lists,
+		"total": count,
+		"limit": limit,
+		"page":  page,
+	})
+}
+
+func SignUpList(ctx iris.Context,auth authbase.AuthAuthorization){
+	auth.CheckAdmin()
+	var Lists []struct{
+		Id int `json:"id"`
+		UserId int `json:"user_id"`
+		ClassId int `json:"class_id"`
+		CourseId int `json:"course_id"`
+		Status int16 `json:"status"`
+	}
+	var count int
+	//TODO 判断登录
+	table := db.Driver.Table("sign_up")
+
+	limit := ctx.URLParamIntDefault("limit", 10)
+	page := ctx.URLParamIntDefault("page", 1)
+	table.Count(&count).Offset((page - 1) * limit).Limit(limit).
+		Select("id,user_id,class_id,course_id,status").Find(&Lists)
+	ctx.JSON(iris.Map{
+		"Lists" : Lists,
+		"total": count,
 		"limit": limit,
 		"page":  page,
 	})

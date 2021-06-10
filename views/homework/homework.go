@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/kataras/iris"
 	authbase "grpc-demo/core/auth"
+	signUpEnum "grpc-demo/enums/sign_up"
 	homeworkException "grpc-demo/exceptions/homework"
 	"grpc-demo/models/db"
 	paramsUtils "grpc-demo/utils/params"
@@ -17,13 +18,15 @@ func CreateHomeWork(ctx iris.Context,auth authbase.AuthAuthorization,cid int){
 	//todo 如果此人不属于这个班级(学生没有加入班级，不允许上传作业) 不允许发布    done
 	//根据班级id,和登陆者id，去找报名表，select * from signUp where class_id = cid and user_id = auth.AccountModel().Id
 	var signUp db.SignUp
-	if err:= db.Driver.Where("class_id = ? AND user_id = ?",cid,auth.AccountModel().Id).First(&signUp).Error;err != nil {
+	if err:= db.Driver.Where("course_id = ? AND user_id = ?",cid,auth.AccountModel().Id).First(&signUp).Error;err != nil {
 		//找不到
 		panic(homeworkException.IllegalUpload())
 	}
+
 	params := paramsUtils.NewParamsParser(paramsUtils.RequestJsonInterface(ctx))
 	//todo 以下两个不需要在body中传     done    这两个东西都在 classId 就是cid ；courseId在那条记录里
 
+	content := params.Str("content","内容")
 	picture := params.List("picture","图片")
 	video := params.List("video","视频")
 	var p string
@@ -47,12 +50,24 @@ func CreateHomeWork(ctx iris.Context,auth authbase.AuthAuthorization,cid int){
 		ClassId :signUp.ClassId,
 		//课程id
 		CourseId :signUp.CourseId,
+		Content:content,
 		//图片
 		Picture : p,
 		//视频
 		Video : v,
 	}
-	db.Driver.Create(&homework)
+	tx := db.Driver.Begin()
+
+	if err := tx.Create(&homework).Error;err != nil{
+		tx.Rollback()
+		panic(homeworkException.DoFail())
+	}
+	signUp.Status = signUpEnum.Done
+	if err := tx.Save(&signUp).Error;err != nil{
+		tx.Rollback()
+		panic(homeworkException.DoFail())
+	}
+	tx.Commit()
 	ctx.JSON(iris.Map{
 		"id：":homework.Id,
 	})
@@ -101,6 +116,10 @@ func PutHomeWork(ctx iris.Context,auth authbase.AuthAuthorization,hid int)  {
 			v = string(dataVideo)
 		}
 		homework.Video = v
+	}
+	if params.Has("content"){
+
+		homework.Content = params.Str("content","内容")
 	}
 	db.Driver.Save(&homework)
 	ctx.JSON(iris.Map{
@@ -239,7 +258,7 @@ func HomeWorkMegt(ctx iris.Context,auth authbase.AuthAuthorization){
 }
 
 var homeworkField = []string{
-	"Id","UpperId","ClassId","CourseId","CreateTime","UpdateTime",
+	"Id","UpperId","ClassId","CourseId","CreateTime","UpdateTime","Content",
 }
 
 //反序列化    Model

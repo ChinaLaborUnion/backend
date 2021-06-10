@@ -90,7 +90,7 @@ func MgetAccounts(ctx iris.Context,auth authbase.AuthAuthorization){
 	ids := params.List("ids", "id列表")
 
 	data := make([]interface{}, 0, len(ids))
-	orders := db.Driver.GetMany("account",ids,db.AccountInfo{})
+	orders := db.Driver.GetMany("account_info",ids,db.AccountInfo{})
 	for _,o := range orders{
 		func(data *[]interface{}){
 			*data = append(*data,paramsUtils.ModelToDict(o,[]string{"Id","Avator","Nickname","Email"}))
