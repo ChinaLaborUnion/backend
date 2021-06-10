@@ -140,7 +140,7 @@ func ListNews(ctx iris.Context,auth authbase.AuthAuthorization){
 		table = table.Where("news_label_id = ?",nlid)
 	}
 	//分页操作	//       ctx.URLParamIntDefault("x",0)
-	table.Count(&count).Offset((page - 1) * limit).Limit(limit).Select("id, create_time").Order("create_time desc").Find(&lists)
+	table.Count(&count).Order("create_time desc").Offset((page - 1) * limit).Limit(limit).Select("id, create_time").Find(&lists)
 	//向前端返回 lists
 	ctx.JSON(iris.Map{
 		"news": lists,

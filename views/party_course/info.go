@@ -174,7 +174,7 @@ func ListPartyCourse(ctx iris.Context){
 	page := ctx.URLParamIntDefault("page", 1)
 
 
-	table.Count(&count).Offset((page - 1) * limit).Limit(limit).Select("id, create_time").Find(&lists)
+	table.Count(&count).Order("create_time desc").Offset((page - 1) * limit).Limit(limit).Select("id, create_time").Find(&lists)
 	ctx.JSON(iris.Map{
 		"party_course": lists,
 		"total": count,

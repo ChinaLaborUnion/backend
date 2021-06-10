@@ -195,7 +195,7 @@ func ListPartyClasses(ctx iris.Context,auth authbase.AuthAuthorization){
 	//
 	//table = table.Where("id in (?)",classIds)
                                                                      //这里也小写
-	table.Count(&count).Offset((page - 1) * limit).Limit(limit).Select("id, create_time").Order("create_time desc").Find(&lists)
+	table.Count(&count).Order("create_time desc").Offset((page - 1) * limit).Limit(limit).Select("id, create_time").Find(&lists)
 	//向前端返回 lists
 	ctx.JSON(iris.Map{
 		"classes": lists,
