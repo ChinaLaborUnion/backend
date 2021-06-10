@@ -51,7 +51,7 @@ func main() {
 	//queue.InitTaskQueue()
 	go signIn()
 	// 启动系统
-	app.Run(iris.Addr(":8011"), iris.WithoutServerError(iris.ErrServerClosed))
+	app.Run(iris.Addr(":80"), iris.WithoutServerError(iris.ErrServerClosed))
 }
 
 func signIn(){
