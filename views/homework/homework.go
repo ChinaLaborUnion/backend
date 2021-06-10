@@ -28,19 +28,16 @@ func CreateHomeWork(ctx iris.Context,auth authbase.AuthAuthorization,cid int){
 
 	content := params.Str("content","内容")
 	picture := params.List("picture","图片")
-	video := params.List("video","视频")
+
+
 	var p string
-	var v string
+
 	if dataPicture,err := json.Marshal(picture);err != nil{
 		panic(homeworkException.PicturesMarshalFail())
 	}else{
 		p = string(dataPicture)
 	}
-	if dataVideo,err := json.Marshal(video);err != nil{
-		panic(homeworkException.VideosMarshalFail())
-	}else{
-		v = string(dataVideo)
-	}
+
 	//todo 根据班级id 找到课程id 存在表中（适当冗余） done
 	//好的，因为党课班级-学生是1-n，应该是根据班级Id去再次查找班级表的记录，然后去拿党课Id。适当冗余也不错，降到了数据库设计的设计原则中的第二范式。
 	homework := db.Homework{
@@ -54,8 +51,20 @@ func CreateHomeWork(ctx iris.Context,auth authbase.AuthAuthorization,cid int){
 		//图片
 		Picture : p,
 		//视频
-		Video : v,
+
 	}
+
+	if params.Has("video"){
+		video := params.List("video","视频")
+		var v string
+		if dataVideo,err := json.Marshal(video);err != nil{
+			panic(homeworkException.VideosMarshalFail())
+		}else{
+			v = string(dataVideo)
+		}
+		homework.Video = v
+	}
+
 	tx := db.Driver.Begin()
 
 	if err := tx.Create(&homework).Error;err != nil{
@@ -265,16 +274,21 @@ var homeworkField = []string{
 func getData(homework db.Homework)map[string]interface{}{
 	v := paramsUtils.ModelToDict(homework,homeworkField)
 	var pictures []string
-	var videos []string
+	if homework.Video != ""{
+		var videos []string
+		if err := json.Unmarshal([]byte(homework.Video),&videos);err != nil{
+			panic(homeworkException.VideosUnmarshalFail())
+		}
+		v["video"] = videos
+	}
+
 	if err := json.Unmarshal([]byte(homework.Picture),&pictures);err != nil{
 		panic(homeworkException.PicturesUnmarshalFail())
 	}
-	if err := json.Unmarshal([]byte(homework.Video),&videos);err != nil{
-		panic(homeworkException.VideosUnmarshalFail())
-	}
+
 	//因为是ModelToDict（Dictation所以就是picture）
 	v["picture"] = pictures
-	v["video"] = videos
+
 	return v
 }
 
