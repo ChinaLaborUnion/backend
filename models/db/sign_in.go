@@ -7,5 +7,7 @@ type SignIn struct{
 	
 	Date string `json:"date"`
 
+	Status bool `json:"status"`
+
 	CreateTime int64 `json:"create_time"`
 }

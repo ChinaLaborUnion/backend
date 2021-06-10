@@ -17,6 +17,7 @@ func SignIn(ctx iris.Context,auth authbase.AuthAuthorization){
 		s := db.SignIn{
 			AccountID:  auth.AccountModel().Id,
 			Date:      date,
+			Status:true,
 		}
 		db.Driver.Create(&s)
 	}
@@ -27,6 +28,7 @@ func SignIn(ctx iris.Context,auth authbase.AuthAuthorization){
 	})
 }
 
+
 func SignInList(ctx iris.Context,auth authbase.AuthAuthorization){
 	auth.CheckLogin()
 
@@ -34,6 +36,7 @@ func SignInList(ctx iris.Context,auth authbase.AuthAuthorization){
 		Id int `json:"id"`
 		AccountID int `json:"account_id"`
 		Date string `json:"date"`
+		Status bool `json:"status"`
 		CreateTime int64 `json:"create_time"`
 	}
 
