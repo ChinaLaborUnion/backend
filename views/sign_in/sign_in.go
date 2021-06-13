@@ -57,7 +57,7 @@ func SignInList(ctx iris.Context,auth authbase.AuthAuthorization){
 
 
 
-	table.Count(&count).Order("create_time desc").Offset((page - 1) * limit).Limit(limit).Select("id, account_id,date,create_time").Find(&lists)
+	table.Count(&count).Order("create_time desc").Offset((page - 1) * limit).Limit(limit).Select("id, account_id,date,create_time,status").Find(&lists)
 	ctx.JSON(iris.Map{
 		"sign_in": lists,
 		"total": count,
