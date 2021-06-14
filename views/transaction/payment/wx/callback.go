@@ -2,6 +2,8 @@ package wx
 
 import (
 	"encoding/json"
+	"fmt"
+	constant "grpc-demo/constants/payment/wxpayment"
 	wxconstant "grpc-demo/constants/payment/wxpayment"
 	orderEnum "grpc-demo/enums/order"
 	PaymentEnums "grpc-demo/enums/payment"
@@ -9,9 +11,11 @@ import (
 	orderException "grpc-demo/exceptions/order"
 	"grpc-demo/exceptions/transaction"
 	"grpc-demo/models/db"
+	util "grpc-demo/utils/hash"
 	logUtils "grpc-demo/utils/log"
 	"grpc-demo/views/transaction/payutil"
 
+	"github.com/iGoogle-ink/gopay/wechat"
 	"github.com/kataras/iris"
 )
 
@@ -72,6 +76,7 @@ type Resource struct {
 
 func CallbackReceiver(ctx iris.Context) {
 	request,err := payutil.ParseNotify(ctx.Request())
+	//request, err := wechat.ParseNotify(ctx.Request())
 	requestJson, _ := json.Marshal(request)
 	logUtils.Println(requestJson)
 	if err != nil {
@@ -158,6 +163,96 @@ func CallbackReceiver(ctx iris.Context) {
 		tx.Commit()
 	}
 	ctx.Text(replyMsg("SUCCESS", "OK"))
+}
+
+func PaymentCallbackReceiver(ctx iris.Context) {
+	request, err := wechat.ParseNotify(ctx.Request())
+	requestJson, _ := json.Marshal(request)
+
+	logUtils.Println(string(requestJson))
+
+	if err != nil {
+		ctx.Text(replyMsg("FAIL", "解析错误"))
+
+		return
+	} else {
+		//验证签名
+		ok, err := wechat.VerifySign(constant.ApiKey, "HMAC-SHA256", request)
+		if err != nil {
+			fmt.Println("err:", err)
+		}
+		if ok != true {
+			ctx.Text(replyMsg("FAIL", "签名失败"))
+			return
+			//panic(PaymentException.VerifySignError())
+		}
+		logUtils.Println("微信验签是否通过:", ok)
+	}
+
+	//println(bm)
+	if err := request.ReturnCode; err != "SUCCESS" {
+		logUtils.Println("微信通知接口接收通信失败:", request.ReturnMsg)
+		ctx.Text(replyMsg("FAIL", ""))
+		//panic(PaymentException.PaymentException())
+
+	} else {
+		var order db.OrderInfo
+		if err := db.Driver.Where("number = ?", request.OutTradeNo).First(&order).Error;err==nil{
+			logUtils.Println(orderException.OrderNotExsit())
+			return
+		}
+
+		var payment db.WxPayOrder
+		if err := db.Driver.Where("out_trade_no = ?", request.OutTradeNo).First(&payment).Error;err!=nil{
+			payment.TradeStateDesc = request.ReturnMsg
+			logUtils.Println(transactionException.PaymentException())
+			return
+		}
+
+		if state := payment.TradeState; state == "SUCCESS" {
+			logUtils.Println("回调已处理")
+			return
+		}
+		if totalFee := request.TotalFee; util.String2Int(totalFee) != payment.TotalFee && util.String2Int(totalFee) != order.Total {
+			logUtils.Println(transactionException.AmoutnIsNotEqual())
+			ctx.Text(replyMsg("FAIL", "金额不等"))
+			return
+		}
+
+		tx := db.Driver.Begin()
+		order.Status = orderEnum.Done
+		if err := tx.Debug().Save(&order).Error; err != nil {
+			tx.Rollback()
+			logUtils.Println(orderException.CancelRefuse())
+			return
+		}
+
+		payment.Status = PaymentEnums.SUCCESS
+		payment.TransactionId = request.TransactionId
+		if err := tx.Save(&payment).Error; err != nil {
+			tx.Rollback()
+			logUtils.Println(transactionException.PaymentSaveFail())
+			return
+		}
+
+		var transaction db.TransactionInfo
+		if err := db.Driver.Where("order_id = ?", order.ID).First(&transaction).Error;err!=nil {
+			logUtils.Println(transactionException.TransactionGetFail())
+		}else{
+			transaction.TransactionStatus = transactionEnums.PAID
+			if err := tx.Save(&payment).Error; err != nil {
+				tx.Rollback()
+				logUtils.Println(transactionException.PaymentSaveFail())
+				return
+			}
+		}
+
+
+		tx.Commit()
+	}
+
+	ctx.Text(replyMsg("SUCCESS", "OK"))
+
 }
 
 type NotifyResponse struct {

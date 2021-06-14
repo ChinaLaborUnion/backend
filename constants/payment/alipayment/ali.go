@@ -13,7 +13,7 @@ const (
 )
 
 const (
-	NotifyUrl       = "120.24.151.34:80/pay/ali/callback"
+	NotifyUrl       = "http://120.24.151.34:80/v1/transaction/ali/callback"
 	RefundNotifyUrl = "https://api.fmg.net.cn/"
 
 	UnifiedApplyNotifyUrl = "https://api.fmg.net.cn/pay/"

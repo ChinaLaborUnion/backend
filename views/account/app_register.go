@@ -35,6 +35,7 @@ func setEmail(email string) {
 	v := hash.GetRandomString(5)
 	//存入缓存
 	v = strings.ToLower(v)
+
 	if _,err := cache.Redis.Do(constants.DbNumberEmail, "set", v, email,60*5);err != nil{
 		panic(AccountException.RedisFail())
 	}

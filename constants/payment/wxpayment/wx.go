@@ -17,7 +17,7 @@ const (
 )
 
 const (
-	UnifiedNotifyUrl = "https://api.fmg.net.cn/pay/wx/callback"//"120.24.151.34:80/pay/wx/callback"
+	UnifiedNotifyUrl = "http://120.24.151.34:80/v1/transaction/wx/paycallback"//"120.24.151.34:80/pay/wx/callback"
 	RefundNotifyUrl  = "https://api.fmg.net.cn/pay/callback/refund"
 
 	UnifiedApplyNotifyUrl = "https://api.fmg.net.cn/pay/callback/apply"

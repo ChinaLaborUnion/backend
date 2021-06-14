@@ -140,7 +140,6 @@ func ListOrder(ctx iris.Context,auth authbase.AuthAuthorization){
 }
 
 var orderField = []string{"ID","Number","GoodsID","AccountID","Total","TotalPrice","Status","CreateTime","UpdateTime"}
-
 func MgetOrders(ctx iris.Context,auth authbase.AuthAuthorization){
 	auth.CheckLogin()
 	params := paramsUtils.NewParamsParser(paramsUtils.RequestJsonInterface(ctx))
@@ -152,8 +151,12 @@ func MgetOrders(ctx iris.Context,auth authbase.AuthAuthorization){
 		if o.(db.OrderInfo).AccountID != auth.AccountModel().Id && !auth.IsAdmin() {
 			continue
 		}
+		var tr db.TransactionInfo
+		db.Driver.Select("platform").Where("order_id=?",o.(db.OrderInfo).ID).First(&tr)
 		func(data *[]interface{}){
-			*data = append(*data,paramsUtils.ModelToDict(o,orderField))
+			temp := paramsUtils.ModelToDict(o,orderField)
+			temp["platform"] = tr.Platform
+			*data = append(*data,temp)
 			defer func() {
 				recover()
 			}()
@@ -162,4 +165,3 @@ func MgetOrders(ctx iris.Context,auth authbase.AuthAuthorization){
 
 	ctx.JSON(data)
 }
-

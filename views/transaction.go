@@ -21,5 +21,7 @@ func RegisterTransactionRouters(app *iris.Application){
 	//支付宝回调
 	transactionRouter.Post("/ali/callback", hero.Handler(ali.PaymentCallbackReceiver))
 
+	//微信回调
+	transactionRouter.Post("wx/paycallback",hero.Handler(wx.PaymentCallbackReceiver))
 }
 

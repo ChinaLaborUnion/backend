@@ -103,6 +103,8 @@ func SignUpListByCid(ctx iris.Context,auth authbase.AuthAuthorization,uid int)  
 		Id int `json:"id"`
 		UserId int `json:"user_id"`
 		ClassId int `json:"class_id"`
+		CourseId int `json:"course_id"`
+		Status int16 `json:"status"`
 	}
 	var count int
 	var sg db.SignUp
@@ -115,10 +117,10 @@ func SignUpListByCid(ctx iris.Context,auth authbase.AuthAuthorization,uid int)  
 	limit := ctx.URLParamIntDefault("limit", 10)
 	page := ctx.URLParamIntDefault("page", 1)
 	table.Count(&count).Offset((page - 1) * limit).Limit(limit).
-		Select("id,user_id,class_id").Find(&Lists)
+		Select("id,user_id,class_id,course_id,status").Find(&Lists)
 	ctx.JSON(iris.Map{
-		"Lists:" : Lists,
-		"total:": count,
+		"Lists" : Lists,
+		"total": count,
 		"limit": limit,
 		"page":  page,
 	})
@@ -132,6 +134,7 @@ func SignUpListByAid(ctx iris.Context,auth authbase.AuthAuthorization,aid int){
 		UserId int `json:"user_id"`
 		ClassId int `json:"class_id"`
 		CourseId int `json:"course_id"`
+		Status int16 `json:"status"`
 	}
 	var count int
 	//TODO 判断登录
@@ -143,10 +146,10 @@ func SignUpListByAid(ctx iris.Context,auth authbase.AuthAuthorization,aid int){
 	limit := ctx.URLParamIntDefault("limit", 10)
 	page := ctx.URLParamIntDefault("page", 1)
 	table.Count(&count).Offset((page - 1) * limit).Limit(limit).
-		Select("id,user_id,class_id,course_id").Find(&Lists)
+		Select("id,user_id,class_id,course_id,status").Find(&Lists)
 	ctx.JSON(iris.Map{
-		"Lists:" : Lists,
-		"total:": count,
+		"Lists" : Lists,
+		"total": count,
 		"limit": limit,
 		"page":  page,
 	})

@@ -77,6 +77,8 @@ func ModelToDict(obj interface{}, field []string) map[string]interface{} {
 	return data
 }
 
+
+
 // 结构体转字典
 func StructToDict(obj interface{}) map[string]interface{} {
 
