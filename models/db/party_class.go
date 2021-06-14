@@ -1,5 +1,6 @@
 package db
 
+//党课班级
 type PartyClass struct {
 	Id int `gorm:"primary_key" json:"id"`
 	//授课老师ID 也是创建者

@@ -178,7 +178,11 @@ func ListPartyClasses(ctx iris.Context,auth authbase.AuthAuthorization){
 	if author := ctx.URLParamIntDefault("author_id", 0); author != 0 && auth.IsAdmin() {
 		table = table.Where("account_id = ?", author)
 	}
-	////todo 学生只能看到自己的班级
+	//todo 学生只能看到自己的班级
+	//todo   select party_class.id,party_class.create_time from party_class
+	//todo   join sign_up on party_class.id = sign_up.class_id
+	//todo   where sign_up.user_id = auth.AccountModel().Id
+
 	//班级-学生表   n-n关系   Id   studentId   classId
 	//sctable := db.Driver.Table("student_class")
 	//////这就是一个select * from where
