@@ -22,32 +22,32 @@ func CreatePartyClass(ctx iris.Context,auth authbase.AuthAuthorization,pid int) 
 	params := paramsUtils.NewParamsParser(paramsUtils.RequestJsonInterface(ctx))
 
 	name := params.Str("name","班级名称")
-	introduce := params.Str("introduce","班级简介")
-	//这里使用utils包下的生成长度为6的随机序列,没有去check 班级码的唯一性
-	code := hash.GetRandomInt(6)
-	place := params.Str("place","地点")
-	//这里前端传过来的就是int64的时间戳，但是我们写的params.Int()是转化为int的，所以我们还需要进行类型转换。
-	startTime := int64(params.Int("start_time","开始时间"))
-	endTime := int64(params.Int("end_time","结束时间"))
-	accountId := auth.AccountModel().Id
-	teacherName := params.Str("teacher_name","教师名字")
-	//TODO 教师
-	//更新时间,创建时间 不写，因为会自动更新
-	comment := params.Str("comment","备注")
 
 	class := db.PartyClass{
 		Name:      name,
-		Introduce: introduce,
-		Code: code,
-		Place:     place,
-		StartTime: startTime,
-		EndTime:   endTime,
-		AccountId: accountId,
-		Comment:   comment,
-		PartyCourseId: pid,
-		TeacherName: teacherName,
+		PartyCourseId: partyCourse.Id,
 	}
-
+	if params.Has("introduce") {
+		class.Introduce = params.Str("introduce","班级简介")
+	}
+	//这里使用utils包下的生成长度为6的随机序列,没有去check 班级码的唯一性
+	class.Code = hash.GetRandomInt(6)
+	if params.Has("place"){
+		class.Place = params.Str("place","地点")
+	}
+	//这里前端传过来的就是int64的时间戳，但是我们写的params.Int()是转化为int的，所以我们还需要进行类型转换。
+	if params.Has("start_time") {
+		class.StartTime = int64(params.Int("start_time","开始时间"))
+	}
+	if params.Has("end_time") {
+		class.EndTime = int64(params.Int("end_time","结束时间"))
+	}
+	class.AccountId = auth.AccountModel().Id
+	class.TeacherName = params.Str("teacher_name","教师名字")
+	//更新时间,创建时间 不写，因为会自动更新
+	if params.Has("comment") {
+		class.Comment = params.Str("comment","备注")
+	}
 	db.Driver.Create(&class)
 
 	ctx.JSON(iris.Map{
@@ -195,7 +195,7 @@ func ListPartyClasses(ctx iris.Context,auth authbase.AuthAuthorization){
 	//
 	//table = table.Where("id in (?)",classIds)
                                                                      //这里也小写
-	table.Count(&count).Offset((page - 1) * limit).Limit(limit).Select("id, create_time").Find(&lists)
+	table.Count(&count).Order("create_time desc").Offset((page - 1) * limit).Limit(limit).Select("id, create_time").Find(&lists)
 	//向前端返回 lists
 	ctx.JSON(iris.Map{
 		"classes": lists,

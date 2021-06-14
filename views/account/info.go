@@ -3,6 +3,7 @@ package account
 import (
 	"github.com/kataras/iris"
 	authbase "grpc-demo/core/auth"
+	accountException "grpc-demo/exceptions/account"
 	"grpc-demo/models/db"
 	paramsUtils "grpc-demo/utils/params"
 )
@@ -10,7 +11,6 @@ import (
 func GetAccountInfo(ctx iris.Context,auth authbase.AuthAuthorization){
 	auth.CheckLogin()
 	account := auth.AccountModel()
-
 	ctx.JSON(iris.Map{
 		"id": account.Id,
 		"email": account.Email,
@@ -22,7 +22,12 @@ func GetAccountInfo(ctx iris.Context,auth authbase.AuthAuthorization){
 
 func PutAccountInfo(ctx iris.Context,auth authbase.AuthAuthorization)  {
 	params := paramsUtils.NewParamsParser(paramsUtils.RequestJsonInterface(ctx))
-	account := auth.AccountModel()
+	id := auth.AccountModel().Id
+	var account db.AccountInfo
+	err := db.Driver.GetOne("account_info",id,account)
+	if err != nil{
+		panic(accountException.AccountNotFount())
+	}
 
 	if account.EmailValidated != true{
 		panic("email no check")
@@ -90,7 +95,7 @@ func MgetAccounts(ctx iris.Context,auth authbase.AuthAuthorization){
 	ids := params.List("ids", "id列表")
 
 	data := make([]interface{}, 0, len(ids))
-	orders := db.Driver.GetMany("account",ids,db.AccountInfo{})
+	orders := db.Driver.GetMany("account_info",ids,db.AccountInfo{})
 	for _,o := range orders{
 		func(data *[]interface{}){
 			*data = append(*data,paramsUtils.ModelToDict(o,[]string{"Id","Avator","Nickname","Email"}))

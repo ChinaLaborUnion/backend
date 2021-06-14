@@ -8,6 +8,8 @@ type Homework struct {
 	ClassId int `json:"class_id"`
 	//课程id
 	CourseId int `json:"course_id"`
+
+	Content string `json:"content"`
 	//图片
 	Picture string `json:"picture"`
 	//视频

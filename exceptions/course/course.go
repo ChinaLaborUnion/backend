@@ -57,3 +57,11 @@ func PictureNotExist() models.RestfulAPIResult {
 		Message: "课程轮播图不存在",
 	}
 }
+
+func ClassExist() models.RestfulAPIResult {
+	return models.RestfulAPIResult{
+		Status:  false,
+		ErrCode: 6300,
+		Message: "当前课程存在班级",
+	}
+}

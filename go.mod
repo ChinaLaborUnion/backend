@@ -4,6 +4,7 @@ go 1.13
 
 require (
 	github.com/Joker/jade v1.0.0 // indirect
+	github.com/Masterminds/squirrel v1.5.0
 	github.com/Shopify/goreferrer v0.0.0-20181106222321-ec9c9a553398 // indirect
 	github.com/ajg/form v1.5.1 // indirect
 	github.com/aymerick/raymond v2.0.2+incompatible // indirect

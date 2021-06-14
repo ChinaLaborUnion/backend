@@ -67,3 +67,11 @@ func HomeworkNotExist() models.RestfulAPIResult {
 		Data:    nil,
 	}
 }
+
+func DoFail() models.RestfulAPIResult {
+	return models.RestfulAPIResult{
+		Status:  false,
+		ErrCode: 5400,
+		Message: "事务执行失败",
+	}
+}

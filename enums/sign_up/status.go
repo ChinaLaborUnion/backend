@@ -3,7 +3,7 @@ package signUpEnum
 import enumsbase "grpc-demo/enums"
 
 const (
-	Doing = 1
+	NoDone = 1
 	Done = 2
 
 )

@@ -33,7 +33,8 @@ func CreatePartyCourse(ctx iris.Context,auth authbase.AuthAuthorization){
 		goodId := params.Int("good_id","商品ID")
 
 		//判断商品是否存在
-		if err := db.Driver.GetOne("PartyCourse",goodId,&partyCourse);err == nil{
+		var goods db.GoodsInfo
+		if err := db.Driver.GetOne("goods_info",goodId,&goods);err != nil{
 			panic(courseException.GoodsNotExist())
 		}
 		partyCourse.GoodsId = goodId
@@ -96,7 +97,8 @@ func PutPartyCourse(ctx iris.Context,auth authbase.AuthAuthorization,cid int){
 
 	if params.Has("good_id"){
 		goodId := params.Int("good_id","商品ID")
-		if err := db.Driver.GetOne("PartyCourse",goodId,&partyCourse);err != nil{
+		var goods db.GoodsInfo
+		if err := db.Driver.GetOne("goods_info",goodId,&goods);err != nil{
 			panic(courseException.GoodsNotExist())
 		}
 		partyCourse.GoodsId = goodId
@@ -135,7 +137,15 @@ func PutPartyCourse(ctx iris.Context,auth authbase.AuthAuthorization,cid int){
 
 func DeletePartyCourse(ctx iris.Context,cid int,auth authbase.AuthAuthorization){
 	auth.CheckLogin()
+
+	var partyClass db.PartyClass
+
+	if err1 := db.Driver.Where("party_course_id =?",cid).First(&partyClass).Error;err1 == nil{
+		panic(courseException.ClassExist())
+	}
+
 	var partyCourse db.PartyCourse
+
 	if err := db.Driver.GetOne("party_course",cid,&partyCourse);err == nil{
 		if partyCourse.AccountId != auth.AccountModel().Id{
 			panic(accountException.NoPermission())
@@ -164,7 +174,7 @@ func ListPartyCourse(ctx iris.Context){
 	page := ctx.URLParamIntDefault("page", 1)
 
 
-	table.Count(&count).Offset((page - 1) * limit).Limit(limit).Select("id, create_time").Find(&lists)
+	table.Count(&count).Order("create_time desc").Offset((page - 1) * limit).Limit(limit).Select("id, create_time").Find(&lists)
 	ctx.JSON(iris.Map{
 		"party_course": lists,
 		"total": count,

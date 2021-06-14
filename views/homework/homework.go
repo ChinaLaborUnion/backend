@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/kataras/iris"
 	authbase "grpc-demo/core/auth"
+	signUpEnum "grpc-demo/enums/sign_up"
 	homeworkException "grpc-demo/exceptions/homework"
 	"grpc-demo/models/db"
 	paramsUtils "grpc-demo/utils/params"
@@ -17,27 +18,26 @@ func CreateHomeWork(ctx iris.Context,auth authbase.AuthAuthorization,cid int){
 	//todo 如果此人不属于这个班级(学生没有加入班级，不允许上传作业) 不允许发布    done
 	//根据班级id,和登陆者id，去找报名表，select * from signUp where class_id = cid and user_id = auth.AccountModel().Id
 	var signUp db.SignUp
-	if err:= db.Driver.Where("class_id = ? AND user_id = ?",cid,auth.AccountModel().Id).First(&signUp).Error;err != nil {
+	if err:= db.Driver.Where("course_id = ? AND user_id = ?",cid,auth.AccountModel().Id).First(&signUp).Error;err != nil {
 		//找不到
 		panic(homeworkException.IllegalUpload())
 	}
+
 	params := paramsUtils.NewParamsParser(paramsUtils.RequestJsonInterface(ctx))
 	//todo 以下两个不需要在body中传     done    这两个东西都在 classId 就是cid ；courseId在那条记录里
 
+	content := params.Str("content","内容")
 	picture := params.List("picture","图片")
-	video := params.List("video","视频")
+
+
 	var p string
-	var v string
+
 	if dataPicture,err := json.Marshal(picture);err != nil{
 		panic(homeworkException.PicturesMarshalFail())
 	}else{
 		p = string(dataPicture)
 	}
-	if dataVideo,err := json.Marshal(video);err != nil{
-		panic(homeworkException.VideosMarshalFail())
-	}else{
-		v = string(dataVideo)
-	}
+
 	//todo 根据班级id 找到课程id 存在表中（适当冗余） done
 	//好的，因为党课班级-学生是1-n，应该是根据班级Id去再次查找班级表的记录，然后去拿党课Id。适当冗余也不错，降到了数据库设计的设计原则中的第二范式。
 	homework := db.Homework{
@@ -47,12 +47,36 @@ func CreateHomeWork(ctx iris.Context,auth authbase.AuthAuthorization,cid int){
 		ClassId :signUp.ClassId,
 		//课程id
 		CourseId :signUp.CourseId,
+		Content:content,
 		//图片
 		Picture : p,
 		//视频
-		Video : v,
+
 	}
-	db.Driver.Create(&homework)
+
+	if params.Has("video"){
+		video := params.List("video","视频")
+		var v string
+		if dataVideo,err := json.Marshal(video);err != nil{
+			panic(homeworkException.VideosMarshalFail())
+		}else{
+			v = string(dataVideo)
+		}
+		homework.Video = v
+	}
+
+	tx := db.Driver.Begin()
+
+	if err := tx.Create(&homework).Error;err != nil{
+		tx.Rollback()
+		panic(homeworkException.DoFail())
+	}
+	signUp.Status = signUpEnum.Done
+	if err := tx.Save(&signUp).Error;err != nil{
+		tx.Rollback()
+		panic(homeworkException.DoFail())
+	}
+	tx.Commit()
 	ctx.JSON(iris.Map{
 		"id：":homework.Id,
 	})
@@ -101,6 +125,10 @@ func PutHomeWork(ctx iris.Context,auth authbase.AuthAuthorization,hid int)  {
 			v = string(dataVideo)
 		}
 		homework.Video = v
+	}
+	if params.Has("content"){
+
+		homework.Content = params.Str("content","内容")
 	}
 	db.Driver.Save(&homework)
 	ctx.JSON(iris.Map{
@@ -211,9 +239,9 @@ func DeleteHomeWork(ctx iris.Context,auth authbase.AuthAuthorization,hid int)  {
 	})
 }
 
-//todo 重写 改回传ids的形式
-//todo 图片视频要反序列化回去
-//todo 如果不是作业的创建者或者作业对应课程的老师或者管理者 不能看见作业
+//todo 重写 改回传ids的形式  done
+//todo 图片视频要反序列化回去  done
+//todo 如果不是作业的创建者或者作业对应课程的老师或者管理者 不能看见作业  done
 func HomeWorkMegt(ctx iris.Context,auth authbase.AuthAuthorization){
 	auth.CheckLogin()
 	//因为在list接口的时候就已经按照身份进行get ids了，所以这里只要判断一下login就行
@@ -239,23 +267,28 @@ func HomeWorkMegt(ctx iris.Context,auth authbase.AuthAuthorization){
 }
 
 var homeworkField = []string{
-	"Id","UpperId","ClassId","CourseId","CreateTime","UpdateTime",
+	"Id","UpperId","ClassId","CourseId","CreateTime","UpdateTime","Content",
 }
 
 //反序列化    Model
 func getData(homework db.Homework)map[string]interface{}{
 	v := paramsUtils.ModelToDict(homework,homeworkField)
 	var pictures []string
-	var videos []string
+	if homework.Video != ""{
+		var videos []string
+		if err := json.Unmarshal([]byte(homework.Video),&videos);err != nil{
+			panic(homeworkException.VideosUnmarshalFail())
+		}
+		v["video"] = videos
+	}
+
 	if err := json.Unmarshal([]byte(homework.Picture),&pictures);err != nil{
 		panic(homeworkException.PicturesUnmarshalFail())
 	}
-	if err := json.Unmarshal([]byte(homework.Video),&videos);err != nil{
-		panic(homeworkException.VideosUnmarshalFail())
-	}
+
 	//因为是ModelToDict（Dictation所以就是picture）
 	v["picture"] = pictures
-	v["video"] = videos
+
 	return v
 }
 
