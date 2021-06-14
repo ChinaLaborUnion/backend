@@ -10,7 +10,12 @@ import (
 
 func GetAccountInfo(ctx iris.Context,auth authbase.AuthAuthorization){
 	auth.CheckLogin()
-	account := auth.AccountModel()
+	id := auth.AccountModel().Id
+	var account db.AccountInfo
+	err := db.Driver.Where("id = ?",id).First(&account)
+	if err != nil{
+		panic(accountException.AccountNotFount())
+	}
 	ctx.JSON(iris.Map{
 		"id": account.Id,
 		"email": account.Email,
