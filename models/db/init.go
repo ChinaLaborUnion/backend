@@ -165,6 +165,7 @@ func (d *driver) GetOne(table string, id int, target interface{}, db ...*gorm.DB
 		return err
 	} else {
 		target = x.Interface()
+		fmt.Println(target)
 		if resByte, err := json.Marshal(&target); err == nil {
 			v := hash.RandInt64(240, 240*5)
 			_, _ = cache.Redis.Do(constants.DbNumberModel, "set", key, resByte, int(v)*60*60)

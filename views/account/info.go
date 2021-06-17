@@ -1,6 +1,7 @@
 package account
 
 import (
+	"fmt"
 	"github.com/kataras/iris"
 	authbase "grpc-demo/core/auth"
 	accountException "grpc-demo/exceptions/account"
@@ -12,7 +13,8 @@ func GetAccountInfo(ctx iris.Context,auth authbase.AuthAuthorization){
 	auth.CheckLogin()
 	id := auth.AccountModel().Id
 	var account db.AccountInfo
-	err := db.Driver.Where("id = ?",id).First(&account)
+	err := db.Driver.Where("id = ?",id).First(&account).Error
+	fmt.Println(err)
 	if err != nil{
 		panic(accountException.AccountNotFount())
 	}
