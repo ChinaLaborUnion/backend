@@ -44,6 +44,9 @@ func PaymentMiddleware(ctx iris.Context, auth authbase.AuthAuthorization, oid, t
 	OutTradeNo := order.Number
 	GoodsInfo := buf
 	AccountId := auth.AccountModel().Id
+	if order.TotalPrice<0{
+		panic(transactionException.TransactionCreateFail())
+	}
 	aliTotalAmount := util.Float32ToString(util.Save2Decimal(float64(order.TotalPrice)))
 	wxTotalAmount := order.TotalPrice
 	//openId := auth.AccountModel().OpenId
