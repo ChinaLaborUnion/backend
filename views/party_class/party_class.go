@@ -111,7 +111,6 @@ func PutPartyClass(ctx iris.Context,auth authbase.AuthAuthorization,cid int){
 //Delete     ---  Delete     删除  cid int
 func DeletePartyClass(ctx iris.Context,auth authbase.AuthAuthorization,cid int){
 	auth.CheckLogin()
-
 	var class db.PartyClass
 	//从db or cache get one data
 	if err := db.Driver.GetOne("party_class",cid,&class);err == nil{
@@ -217,16 +216,13 @@ var x = []string{
 //Mget --- post    根据前端给来的 id 数组，进行获取更详细的goods信息
 func MgetPartyClass(ctx iris.Context,auth authbase.AuthAuthorization){
 	auth.CheckLogin()
-
 	params := paramsUtils.NewParamsParser(paramsUtils.RequestJsonInterface(ctx))
 	ids := params.List("ids", "id列表")
-
 	data := make([]interface{}, 0, len(ids))
 	classes := db.Driver.GetMany("party_class", ids, db.PartyClass{})
 	//for   goods  ->  data
 	for _,class  := range classes {
 		func(data *[]interface{}) {
-			//这里对应的是数据库表的字段名 Select:选择“指定查询时要从数据库检索的字段”，默认情况下，将选择所有字段；创建/更新时，指定要保存到数据库的字段
 			*data = append(*data, paramsUtils.ModelToDict(class,x))
 			defer func() {
 				recover()

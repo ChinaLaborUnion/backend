@@ -10,6 +10,7 @@ import (
 	paramsUtils "grpc-demo/utils/params"
 )
 
+<<<<<<< HEAD
 //改了
 func CreateHomeWork(ctx iris.Context,auth authbase.AuthAuthorization,cid int){
 	//todo 在url中加入班级id   done
@@ -25,6 +26,23 @@ func CreateHomeWork(ctx iris.Context,auth authbase.AuthAuthorization,cid int){
 
 	params := paramsUtils.NewParamsParser(paramsUtils.RequestJsonInterface(ctx))
 	//todo 以下两个不需要在body中传     done    这两个东西都在 classId 就是cid ；courseId在那条记录里
+=======
+func CreateHomeWork(ctx iris.Context,auth authbase.AuthAuthorization,cid int){
+	//todo 在url中加入班级id
+	auth.CheckLogin()
+	upperId := auth.AccountModel().Id
+	//todo 如果此人不属于这个班级 不允许发布
+	var u db.PartyClass
+	creater := db.Driver.Table("party_class")
+	creater = creater.Where("class_id",cid).First(&u)
+	if u.AccountId != auth.AccountModel().Id{
+		panic("您不在班级中")
+	}
+	params := paramsUtils.NewParamsParser(paramsUtils.RequestJsonInterface(ctx))
+	//todo 以下两个不需要在body中传
+	//classId := params.Int("classId","班级id")
+	//courseId := params.Int("courseId","课程id")
+>>>>>>> ceff7a2 (change new)
 
 	content := params.Str("content","内容")
 	picture := params.List("picture","图片")
@@ -44,10 +62,16 @@ func CreateHomeWork(ctx iris.Context,auth authbase.AuthAuthorization,cid int){
 		//上传人
 		UpperId : auth.AccountModel().Id,
 		//班级id
+<<<<<<< HEAD
 		ClassId :signUp.ClassId,
 		//课程id
 		CourseId :signUp.CourseId,
 		Content:content,
+=======
+		ClassId :u.Id,
+		//课程id
+		CourseId :u.PartyCourseId,
+>>>>>>> ceff7a2 (change new)
 		//图片
 		Picture : p,
 		//视频
@@ -239,10 +263,18 @@ func DeleteHomeWork(ctx iris.Context,auth authbase.AuthAuthorization,hid int)  {
 	})
 }
 
+<<<<<<< HEAD
 //todo 重写 改回传ids的形式  done
 //todo 图片视频要反序列化回去  done
 //todo 如果不是作业的创建者或者作业对应课程的老师或者管理者 不能看见作业  done
 func HomeWorkMegt(ctx iris.Context,auth authbase.AuthAuthorization){
+=======
+//todo 重写 改回传ids的形式
+//todo 图片视频要反序列化回去
+//todo 如果不是作业的创建者或者作业对应课程的老师或者管理者 不能看见作业
+func HomeWorkMegt(ctx iris.Context,auth authbase.AuthAuthorization)  {
+	//todo 直接走缓存
+>>>>>>> ceff7a2 (change new)
 	auth.CheckLogin()
 	//因为在list接口的时候就已经按照身份进行get ids了，所以这里只要判断一下login就行
 	params := paramsUtils.NewParamsParser(paramsUtils.RequestJsonInterface(ctx))

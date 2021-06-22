@@ -46,6 +46,10 @@ func CreatSignUp(ctx iris.Context,auth authbase.AuthAuthorization)  {
 	db.Driver.Create(&signup)
 	ctx.JSON(iris.Map{
 		"id":signup.Id,
+<<<<<<< HEAD
+=======
+		"class_id":c.Id,
+>>>>>>> ceff7a2 (change new)
 	})
 }
 

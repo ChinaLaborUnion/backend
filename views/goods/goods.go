@@ -3,9 +3,8 @@ package goods
 import (
 	"encoding/json"
 	"github.com/kataras/iris"
-	goodsException "grpc-demo/exceptions/goods"
-
 	authbase "grpc-demo/core/auth"
+	goodsException "grpc-demo/exceptions/goods"
 	"grpc-demo/models/db"
 	paramsUtils "grpc-demo/utils/params"
 )
@@ -14,7 +13,6 @@ func CreateGoods(ctx iris.Context,auth authbase.AuthAuthorization){
 	auth.CheckAdmin()
 
 	params := paramsUtils.NewParamsParser(paramsUtils.RequestJsonInterface(ctx))
-
 
 	cover := params.Str("cover","封面")
 	name := params.Str("name","商品名")
@@ -110,7 +108,8 @@ func ListGoods(ctx iris.Context,auth authbase.AuthAuthorization){
 
 	page := ctx.URLParamIntDefault("page", 1)
 
-	table.Count(&count).Order("create_time desc").Offset((page - 1) * limit).Limit(limit).Select("id, create_time").Find(&lists)
+	table.Count(&count).Order("create_time desc").Offset((page - 1) * limit).
+		Limit(limit).Select("id, create_time").Find(&lists)
 
 	ctx.JSON(iris.Map{
 		"goods": lists,
