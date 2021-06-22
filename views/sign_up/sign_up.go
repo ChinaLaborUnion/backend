@@ -20,7 +20,6 @@ func CreatSignUp(ctx iris.Context,auth authbase.AuthAuthorization)  {
 	cid := params.Int("course_id","course_id")
 	//post方法写选课码
 	code := params.Str("code","选课码")
-
 	var s db.SignUp
 	if err := db.Driver.Where("user_id = ? and course_id = ?",auth.AccountModel().Id,cid).First(&s).Error;err == nil{
 		panic(signupException.SignedUp())
